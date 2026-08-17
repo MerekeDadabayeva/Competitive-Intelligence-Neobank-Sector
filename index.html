@@ -3,244 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Republic · Competitive Intelligence & Decision Engine</title>
+    <title>Trade Republic · Competitive Intelligence Radar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Top Navigation Header -->
+    <!-- 1. Clean Top Navigation Header -->
     <header class="app-header">
         <div class="header-branding">
             <div class="logo-mark">TR</div>
             <div class="header-titles">
                 <div class="title-row">
                     <h1>Competitive Intelligence Radar</h1>
-                    <span class="version-badge">Executive PM Engine</span>
+                    <span class="version-badge">Live Market Engine</span>
                 </div>
                 <span class="header-subtitle">Trade Republic vs European Neobanks · Autonomous Provenance & Execution Bridge</span>
             </div>
         </div>
+
+        <div class="header-center-nav">
+            <button class="nav-tab-btn active" data-tab="radar">📡 Live Radar</button>
+            <button class="nav-tab-btn" data-tab="brief">📊 Executive Brief & Strategy</button>
+            <button class="nav-tab-btn" data-tab="integrity">🛡️ Data Integrity</button>
+        </div>
+
         <div class="header-actions">
             <div class="status-live-pill">
                 <span class="live-pulse-dot"></span>
-                <span>8 Live Primary Feeds Verified</span>
+                <span>8 Live Feeds Verified</span>
             </div>
-            <button class="btn-secondary-nav" id="open-brief-modal-btn">📋 Executive Brief</button>
-            <button class="btn-secondary-nav" id="open-stack-btn">🏗️ Pipeline Rigor</button>
             <button class="btn-secondary-nav" id="open-baseline-btn">⚙️ TR Baseline</button>
         </div>
     </header>
 
-    <!-- Stakeholder Persona Switcher Bar -->
-    <div class="persona-banner">
-        <div class="persona-banner-inner">
-            <div class="persona-switch-left">
-                <span class="persona-switch-label">Stakeholder Lens:</span>
-                <div class="persona-btn-group">
-                    <button class="persona-btn active" data-persona="pm">⚡ Product Lead</button>
-                    <button class="persona-btn" data-persona="exec">👔 C-Suite Executive</button>
-                    <button class="persona-btn" data-persona="eng">🛠️ Engineering Squad</button>
-                </div>
-            </div>
-            <div class="persona-switch-desc" id="persona-switch-desc">
-                <strong>Product Lead Lens:</strong> Balanced strategic radar with competitor deltas, tactical counter-moves, and PRDs.
-            </div>
-        </div>
-    </div>
-
     <!-- Main Container -->
     <div class="app-container">
-        <!-- Top KPI Summary Strip -->
-        <section class="kpi-strip" id="kpi-strip">
-            <!-- Dynamic KPIs injected by JS based on persona -->
+        <!-- Top Executive KPI Metric Strip -->
+        <section class="kpi-strip">
+            <div class="kpi-card">
+                <div class="kpi-label">Yield Spread Moat</div>
+                <div class="kpi-val text-emerald">+75 bps Lead</div>
+                <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Protected Custody AUC</div>
+                <div class="kpi-val text-blue">€24.2M</div>
+                <div class="kpi-sub">Scalable €100 poaching defense</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Acquisition Velocity Lead</div>
+                <div class="kpi-val text-indigo">3 Min KYC</div>
+                <div class="kpi-sub">vs N26 4.3★ verification loop churn</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Sprint Capacity Protected</div>
+                <div class="kpi-val text-purple">+2 Sprints</div>
+                <div class="kpi-sub">Revolut Ultra €45/mo noise rejected</div>
+            </div>
         </section>
 
-        <!-- Navigation Tabs -->
-        <div class="nav-segmented-tabs">
-            <button class="tab-btn active" data-tab="feed">⚡ Live Signals (<span id="tab-feed-count">8</span>)</button>
-            <button class="tab-btn" data-tab="parity">🎯 Moat & Parity Radar</button>
-            <button class="tab-btn" data-tab="brief">📋 Weekly Executive Brief</button>
-            <button class="tab-btn" data-tab="takeaways">⚡ Strategic Actions</button>
-            <button class="tab-btn" data-tab="simulator">🧮 What-If Strategy Simulator</button>
-            <button class="tab-btn" data-tab="arch">🛡️ Data Integrity & Architecture</button>
-        </div>
-
-        <!-- Filter & Search Toolbar (Only visible for feed tab) -->
-        <div class="filter-toolbar" id="feed-filter-toolbar">
-            <div class="filter-chip-group">
-                <span class="filter-label">Competitor:</span>
-                <button class="filter-chip active" data-filter-type="competitor" data-filter-val="ALL">All (4)</button>
-                <button class="filter-chip" data-filter-type="competitor" data-filter-val="N26">N26</button>
-                <button class="filter-chip" data-filter-type="competitor" data-filter-val="Scalable Capital">Scalable</button>
-                <button class="filter-chip" data-filter-type="competitor" data-filter-val="Revolut">Revolut</button>
-                <button class="filter-chip" data-filter-type="competitor" data-filter-val="Bitpanda">Bitpanda</button>
-            </div>
-
-            <div class="filter-chip-group">
-                <span class="filter-label">Strategic Impact:</span>
-                <button class="filter-chip active" data-filter-type="impact" data-filter-val="ALL">All Moves</button>
-                <button class="filter-chip" data-filter-type="impact" data-filter-val="Differentiator (Moat)">🏰 Moat Lead</button>
-                <button class="filter-chip" data-filter-type="impact" data-filter-val="Defensive Need (Parity)">🛡️ Defensive</button>
-                <button class="filter-chip" data-filter-type="impact" data-filter-val="Noise (Low ROI)">🔇 Filtered Noise</button>
-            </div>
-
-            <div class="search-box-wrapper">
-                <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, terms..." class="search-input">
-            </div>
-        </div>
-
-        <!-- Tab Contents -->
-        <main class="main-workspace">
-            <!-- 1. Signals Feed Tab -->
-            <section class="tab-content active" id="tab-feed">
-                <div id="signals-container" class="signals-clean-grid">Loading signals...</div>
-            </section>
-
-            <!-- 2. Moat & Parity Radar Tab -->
-            <section class="tab-content" id="tab-parity">
-                <div id="parity-container"></div>
-            </section>
-
-            <!-- 3. Weekly Executive Brief Tab -->
-            <section class="tab-content" id="tab-brief">
-                <div class="brief-panel-card">
-                    <div class="brief-panel-header">
-                        <div>
-                            <h2>Executive Competitive Intelligence Brief</h2>
-                            <p class="modal-subtitle">Autonomous weekly synthesis for Head of Product & C-Suite</p>
-                        </div>
-                        <div class="brief-controls">
-                            <div class="format-toggle" id="brief-format-toggle">
-                                <button class="format-btn active" data-format="summary">Visual Brief</button>
-                                <button class="format-btn" data-format="slack">Slack Format</button>
-                                <button class="format-btn" data-format="email">Email Format</button>
-                            </div>
-                            <button class="btn-primary" id="hero-copy-brief-btn">📋 Copy Brief</button>
-                        </div>
-                    </div>
-                    <div class="brief-panel-body" id="brief-hero-content">Loading executive brief...</div>
+        <!-- VIEW 1: Live Radar (Master-Detail Feed) -->
+        <section class="view-panel active" id="view-radar">
+            <!-- Filter Toolbar -->
+            <div class="radar-filter-bar">
+                <div class="filter-chip-group">
+                    <span class="filter-label">Competitor:</span>
+                    <button class="filter-chip active" data-filter-type="competitor" data-filter-val="ALL">All (8)</button>
+                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="N26">N26</button>
+                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="Scalable Capital">Scalable</button>
+                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="Revolut">Revolut</button>
+                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="Bitpanda">Bitpanda</button>
                 </div>
-            </section>
 
-            <!-- 4. Strategic Actions Tab -->
-            <section class="tab-content" id="tab-takeaways">
-                <div id="takeaways-container"></div>
-            </section>
+                <div class="filter-chip-group">
+                    <span class="filter-label">Impact:</span>
+                    <button class="filter-chip active" data-filter-type="impact" data-filter-val="ALL">All Moves</button>
+                    <button class="filter-chip" data-filter-type="impact" data-filter-val="Differentiator (Moat)">🏰 Moat Leads</button>
+                    <button class="filter-chip" data-filter-type="impact" data-filter-val="Defensive Need (Parity)">🛡️ Defensive</button>
+                    <button class="filter-chip" data-filter-type="impact" data-filter-val="Noise (Low ROI)">🔇 Filtered Noise</button>
+                </div>
 
-            <!-- 5. What-If Strategy Simulator Tab -->
-            <section class="tab-content" id="tab-simulator">
-                <div id="simulator-container"></div>
-            </section>
+                <div class="search-box-wrapper">
+                    <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, terms..." class="search-input">
+                </div>
+            </div>
 
-            <!-- 6. Data Integrity & Architecture Tab -->
-            <section class="tab-content" id="tab-arch">
-                <div id="arch-container"></div>
-            </section>
-        </main>
-    </div>
+            <!-- Master-Detail Split Pane -->
+            <div class="master-detail-container">
+                <!-- Left Pane: Signal Feed List -->
+                <div class="master-list-pane" id="master-signal-list">
+                    <!-- Dynamic Signal List Items Injected by JS -->
+                </div>
 
-    <!-- Unified Signal Deep-Dive Drawer / Modal (PRD + Jira + Provenance) -->
-    <div class="modal-overlay" id="signal-modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <div class="modal-title-box">
-                    <span id="modal-competitor-badge" class="badge"></span>
+                <!-- Right Pane: Sticky Inspector Drawer -->
+                <div class="detail-inspector-pane" id="detail-inspector-pane">
+                    <!-- Dynamic Inspector Injected by JS based on selected signal -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: Executive Brief & Strategy (Brief + Parity Matrix + Simulator) -->
+        <section class="view-panel" id="view-brief">
+            <!-- Weekly Executive Brief Card -->
+            <div class="content-panel-card">
+                <div class="panel-header-row">
                     <div>
-                        <h3 id="modal-signal-title">Signal Details</h3>
-                        <p id="modal-signal-subtitle" class="modal-subtitle"></p>
+                        <h2>Weekly Executive Intelligence Brief</h2>
+                        <p class="panel-subtitle">Synthesized strategic brief for Head of Product & Executive Committee</p>
+                    </div>
+                    <div class="brief-controls">
+                        <div class="format-toggle" id="brief-format-toggle">
+                            <button class="format-btn active" data-format="summary">Visual Brief</button>
+                            <button class="format-btn" data-format="slack">Slack Format</button>
+                            <button class="format-btn" data-format="email">Email Format</button>
+                        </div>
+                        <button class="btn-primary" id="copy-brief-btn">📋 Copy Brief</button>
                     </div>
                 </div>
-                <button class="close-modal" id="close-signal-modal-btn">&times;</button>
+                <div id="brief-content-area" class="panel-body-area">Loading brief...</div>
             </div>
 
-            <div class="modal-subnav-tabs">
-                <button class="modal-tab-btn active" data-modal-tab="prd">📝 1-Page Counter-PRD</button>
-                <button class="modal-tab-btn" data-modal-tab="jira">⚡ Sprint Jira Epic (Gherkin)</button>
-                <button class="modal-tab-btn" data-modal-tab="provenance">🔍 Data Provenance & AST Diff</button>
+            <!-- Competitive Moat & Parity Radar Table -->
+            <div class="content-panel-card" style="margin-top:20px;">
+                <div class="panel-header-row">
+                    <div>
+                        <h2>Competitive Parity & Moat Radar</h2>
+                        <p class="panel-subtitle">Direct strategic delta mapping against Trade Republic's baseline</p>
+                    </div>
+                </div>
+                <div class="parity-table-container" id="parity-table-area">Loading table...</div>
             </div>
 
-            <div class="modal-body">
-                <!-- Modal Tab 1: Mini-PRD -->
-                <div class="modal-tab-content active" id="modal-tab-prd">
-                    <div class="spec-section">
-                        <h4>1. Problem Statement & Competitive Dynamic</h4>
-                        <p id="modal-prd-problem" class="spec-text"></p>
-                    </div>
-                    <div class="spec-section">
-                        <h4>2. Proposed MVP Counter-Response</h4>
-                        <p id="modal-prd-response" class="spec-text"></p>
-                    </div>
-                    <div class="spec-section">
-                        <h4>3. Target Business Metrics</h4>
-                        <ul id="modal-prd-metrics" class="spec-list"></ul>
-                    </div>
-                    <div class="spec-section out-of-scope-section">
-                        <h4>4. Explicit Out-of-Scope Guardrails (Feature Creep Discipline)</h4>
-                        <ul id="modal-prd-out-of-scope" class="spec-list out-of-scope-list"></ul>
-                    </div>
-                    <div class="modal-action-bar">
-                        <button class="btn btn-primary" id="copy-modal-prd-btn">📋 Copy Mini-PRD (Markdown)</button>
+            <!-- What-If Strategy Simulator -->
+            <div class="content-panel-card" style="margin-top:20px;">
+                <div class="panel-header-row">
+                    <div>
+                        <h2>🧮 What-If Strategic Decision Simulator</h2>
+                        <p class="panel-subtitle">Model yield spread sensitivity, transfer bounty economics, and AUC protection thresholds</p>
                     </div>
                 </div>
-
-                <!-- Modal Tab 2: Jira Gherkin -->
-                <div class="modal-tab-content" id="modal-tab-jira">
-                    <div class="spec-section">
-                        <h4>Epic Title</h4>
-                        <p id="modal-jira-title" class="spec-code"></p>
-                    </div>
-                    <div class="spec-section">
-                        <h4>User Story</h4>
-                        <p id="modal-jira-story" class="spec-text"></p>
-                    </div>
-                    <div class="spec-section">
-                        <h4>Gherkin Scenarios (Given / When / Then)</h4>
-                        <pre id="modal-jira-gherkin" class="gherkin-box"></pre>
-                    </div>
-                    <div class="spec-section">
-                        <h4>Definition of Done & Acceptance Criteria</h4>
-                        <ul id="modal-jira-ac" class="spec-list"></ul>
-                    </div>
-                    <div class="modal-action-bar">
-                        <button class="btn btn-primary" id="copy-modal-jira-btn">📋 Copy Jira Epic</button>
-                    </div>
-                </div>
-
-                <!-- Modal Tab 3: Provenance & AST Diff -->
-                <div class="modal-tab-content" id="modal-tab-provenance">
-                    <div class="payload-meta-grid">
-                        <div class="payload-meta-item">
-                            <span class="payload-meta-label">Primary Feed Source</span>
-                            <span id="modal-prov-source" class="payload-meta-value"></span>
-                        </div>
-                        <div class="payload-meta-item">
-                            <span class="payload-meta-label">Ingestion Timestamp</span>
-                            <span id="modal-prov-timestamp" class="payload-meta-value"></span>
-                        </div>
-                        <div class="payload-meta-item">
-                            <span class="payload-meta-label">Grounding Verification Hash</span>
-                            <span id="modal-prov-hash" class="payload-meta-value font-mono"></span>
-                        </div>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>Unified AST Character Diff</h4>
-                        <div id="modal-prov-diff" class="diff-content expanded"></div>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>Raw Extracted Snapshot (Unedited Primary Document)</h4>
-                        <pre id="modal-prov-raw" class="gherkin-box raw-text-box"></pre>
-                    </div>
-
-                    <div class="modal-action-bar">
-                        <a id="modal-prov-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Verify Primary Canonical Source ↗</a>
-                    </div>
-                </div>
+                <div id="simulator-content-area">Loading simulator...</div>
             </div>
-        </div>
+        </section>
+
+        <!-- VIEW 3: Data Integrity & System Architecture -->
+        <section class="view-panel" id="view-integrity">
+            <div class="content-panel-card">
+                <div class="panel-header-row">
+                    <div>
+                        <h2>🛡️ Data Integrity & Zero-Extrapolation Pipeline</h2>
+                        <p class="panel-subtitle">Deterministic AST unified diff extraction, type-safe Zod validation, and cryptographic SHA-256 provenance</p>
+                    </div>
+                </div>
+                <div id="integrity-content-area">Loading integrity architecture...</div>
+            </div>
+        </section>
     </div>
 
     <!-- Trade Republic Baseline Modal -->

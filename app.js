@@ -1,14 +1,14 @@
-// Trade Republic Competitive Radar — Clean Executive Edition v3.0
+// Trade Republic Competitive Intelligence Radar — Master-Detail Engine v4.0
 
 (function() {
     let signalsData = getFullSignalsDataset();
     let baselineData = getFullBaselineData();
-    let activeBriefFormat = 'summary';
-    let activeModalSignal = null;
+    let selectedSignalId = signalsData[0].id;
     let selectedCompetitor = 'ALL';
     let selectedImpact = 'ALL';
     let searchQuery = '';
-    let activePersona = 'pm'; // 'pm' | 'exec' | 'eng'
+    let activeInspectorTab = 'prd'; // 'prd' | 'jira' | 'diff'
+    let activeBriefFormat = 'summary'; // 'summary' | 'slack' | 'email'
 
     // Simulator State
     let simYieldRate = 4.00;
@@ -29,6 +29,9 @@
                 const data = await res.json();
                 if (Array.isArray(data) && data.length > 0) {
                     signalsData = data;
+                    if (!signalsData.find(s => s.id === selectedSignalId)) {
+                        selectedSignalId = signalsData[0].id;
+                    }
                     render();
                 }
             }
@@ -46,92 +49,45 @@
     }
 
     function setupEventListeners() {
-        // Stakeholder Persona Switcher
-        document.querySelectorAll('.persona-btn').forEach(btn => {
+        // 1. Header Navigation Tabs
+        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const persona = e.currentTarget.dataset.persona;
-                document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                activePersona = persona;
+                const targetTab = e.currentTarget.dataset.tab;
+                document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
 
-                const descEl = document.getElementById('persona-switch-desc');
-                if (descEl) {
-                    if (persona === 'exec') {
-                        descEl.innerHTML = '<strong>C-Suite Executive Lens:</strong> Financial materiality, net interest margin (NIM) exposure, AUC protection & board decisions.';
-                    } else if (persona === 'eng') {
-                        descEl.innerHTML = '<strong>Engineering Squad Lens:</strong> Technical deltas, story point sizing, Gherkin BDD user stories, latency SLOs & roadmap protection.';
-                    } else {
-                        descEl.innerHTML = '<strong>Product Lead Lens:</strong> Balanced strategic radar with competitor deltas, tactical counter-moves, and PRDs.';
-                    }
-                }
-                render();
+                e.currentTarget.classList.add('active');
+                const targetPanel = document.getElementById('view-' + targetTab);
+                if (targetPanel) targetPanel.classList.add('active');
             });
         });
 
-        // Tab Navigation
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetId = e.currentTarget.getAttribute('data-tab');
-                if (!targetId) return;
-
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-                e.currentTarget.classList.add('active');
-                const content = document.getElementById('tab-' + targetId);
-                if (content) content.classList.add('active');
-
-                // Toggle filter toolbar visibility (only on feed tab)
-                const filterToolbar = document.getElementById('feed-filter-toolbar');
-                if (filterToolbar) {
-                    filterToolbar.style.display = targetId === 'feed' ? 'flex' : 'none';
-                }
-            });
-        });
-
-        // Filter Chips
+        // 2. Filter Chips
         document.querySelectorAll('.filter-chip').forEach(chip => {
             chip.addEventListener('click', (e) => {
                 const type = e.currentTarget.dataset.filterType;
                 const val = e.currentTarget.dataset.filterVal;
 
-                // Update active chip in group
                 document.querySelectorAll(`.filter-chip[data-filter-type="${type}"]`).forEach(c => c.classList.remove('active'));
                 e.currentTarget.classList.add('active');
 
                 if (type === 'competitor') selectedCompetitor = val;
                 if (type === 'impact') selectedImpact = val;
 
-                render();
+                renderRadarMasterList();
             });
         });
 
-        // Search Input
+        // 3. Search Input
         const searchInput = document.getElementById('signal-search-input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 searchQuery = e.target.value.toLowerCase().trim();
-                render();
+                renderRadarMasterList();
             });
         }
 
-        // Global Action Buttons (Header)
-        const openBriefModalBtn = document.getElementById('open-brief-modal-btn');
-        if (openBriefModalBtn) {
-            openBriefModalBtn.addEventListener('click', () => {
-                const briefTab = document.querySelector('.tab-btn[data-tab="brief"]');
-                if (briefTab) briefTab.click();
-            });
-        }
-
-        const openStackBtn = document.getElementById('open-stack-btn');
-        if (openStackBtn) {
-            openStackBtn.addEventListener('click', () => {
-                const archTab = document.querySelector('.tab-btn[data-tab="arch"]');
-                if (archTab) archTab.click();
-            });
-        }
-
+        // 4. Baseline Modal
         const openBaselineBtn = document.getElementById('open-baseline-btn');
         const baselineModal = document.getElementById('baseline-modal');
         const closeBaselineBtn = document.getElementById('close-baseline-btn');
@@ -144,54 +100,76 @@
         if (closeBaselineBtn && baselineModal) {
             closeBaselineBtn.addEventListener('click', () => baselineModal.classList.remove('active'));
         }
-
-        // Unified Signal Modal
-        const signalModal = document.getElementById('signal-modal');
-        const closeSignalModalBtn = document.getElementById('close-signal-modal-btn');
-        if (closeSignalModalBtn && signalModal) {
-            closeSignalModalBtn.addEventListener('click', () => signalModal.classList.remove('active'));
+        if (baselineModal) {
+            baselineModal.addEventListener('click', (e) => {
+                if (e.target === baselineModal) baselineModal.classList.remove('active');
+            });
         }
 
-        // Modal Sub-Tabs
-        document.querySelectorAll('.modal-tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetTab = e.currentTarget.dataset.modalTab;
-                document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
-
-                e.currentTarget.classList.add('active');
-                const targetContent = document.getElementById('modal-tab-' + targetTab);
-                if (targetContent) targetContent.classList.add('active');
-            });
-        });
-
-        // Close Modals on Overlay Click
-        [signalModal, baselineModal].forEach(modal => {
-            if (modal) {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) modal.classList.remove('active');
-                });
-            }
-        });
-
-        // Card Action Delegates
+        // 5. Dynamic Delegated Clicks (Master List items, Inspector Tabs, Copy Buttons)
         document.body.addEventListener('click', (e) => {
-            const openDetailsBtn = e.target.closest('.btn-open-signal-modal');
-            const inlineDiffBtn = e.target.closest('.btn-toggle-inline-diff');
-            const slackAlertBtn = e.target.closest('.btn-slack-alert');
+            // Click Master List Item
+            const rowItem = e.target.closest('.signal-row-item');
+            if (rowItem) {
+                selectedSignalId = rowItem.dataset.id;
+                document.querySelectorAll('.signal-row-item').forEach(r => r.classList.remove('active'));
+                rowItem.classList.add('active');
+                renderInspectorDrawer();
+                return;
+            }
 
-            if (openDetailsBtn) {
-                const sigId = openDetailsBtn.dataset.id;
-                const tab = openDetailsBtn.dataset.defaultTab || 'prd';
-                openUnifiedSignalModal(sigId, tab);
-            } else if (inlineDiffBtn) {
-                const card = inlineDiffBtn.closest('.signal-clean-card');
-                const diffBox = card ? card.querySelector('.card-inline-diff') : null;
-                if (diffBox) {
-                    const isOpen = diffBox.classList.toggle('open');
-                    inlineDiffBtn.textContent = isOpen ? '▲ Hide Diff' : '🔍 AST Diff';
-                }
-            } else if (slackAlertBtn) {
+            // Click Inspector Tab Button
+            const tabBtn = e.target.closest('.inspector-tab-btn');
+            if (tabBtn) {
+                activeInspectorTab = tabBtn.dataset.inspectorTab;
+                document.querySelectorAll('.inspector-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.inspector-tab-content').forEach(c => c.classList.remove('active'));
+
+                tabBtn.classList.add('active');
+                const content = document.getElementById('insp-tab-' + activeInspectorTab);
+                if (content) content.classList.add('active');
+                return;
+            }
+
+            // Copy PRD Markdown
+            const copyPrdBtn = e.target.closest('#btn-copy-drawer-prd');
+            if (copyPrdBtn) {
+                const signal = getSelectedSignal();
+                if (!signal) return;
+                const prd = signal.mini_prd;
+                const md = `# [MINI-PRD] Strategic Response to ${signal.competitor}\n` +
+                    `**Pillar**: ${signal.jtbd_pillar || ''} | **Impact**: ${signal.impact_scoring ? signal.impact_scoring.classification : ''}\n\n` +
+                    `## 1. Problem Statement & Context\n${prd.problem_statement}\n\n` +
+                    `## 2. Proposed MVP Counter-Response\n${prd.proposed_mvp_response}\n\n` +
+                    `## 3. Target Business Metrics\n${prd.target_metrics.map(m => '- [ ] ' + m).join('\n')}\n\n` +
+                    `## 4. Explicit Out-of-Scope (Guardrails)\n${prd.explicit_out_of_scope.map(s => '- ❌ ' + s).join('\n')}\n\n` +
+                    `## 5. Verification Source Artifact\n${signal.source_url}`;
+
+                navigator.clipboard.writeText(md).then(() => {
+                    copyPrdBtn.textContent = '✓ Copied Markdown!';
+                    setTimeout(() => { copyPrdBtn.textContent = '📋 Copy Mini-PRD'; }, 2200);
+                });
+                return;
+            }
+
+            // Copy Jira Epic Gherkin
+            const copyJiraBtn = e.target.closest('#btn-copy-drawer-jira');
+            if (copyJiraBtn) {
+                const signal = getSelectedSignal();
+                if (!signal) return;
+                const j = signal.jira_gherkin_story;
+                const txt = `h2. ${j.epic_title}\n\n*User Story:*\n${j.user_story}\n\n*Gherkin Scenarios:*\n{code}\n${j.gherkin_scenarios.join('\n\n')}\n{code}\n\n*Definition of Done:*\n${j.acceptance_criteria.map(ac => '# ' + ac).join('\n')}`;
+
+                navigator.clipboard.writeText(txt).then(() => {
+                    copyJiraBtn.textContent = '✓ Copied Jira Epic!';
+                    setTimeout(() => { copyJiraBtn.textContent = '⚡ Copy Jira Story'; }, 2200);
+                });
+                return;
+            }
+
+            // Slack Alert Trigger
+            const slackAlertBtn = e.target.closest('.btn-slack-alert');
+            if (slackAlertBtn) {
                 const ch = slackAlertBtn.dataset.channel || '#product-squad';
                 slackAlertBtn.textContent = '✓ Alert Sent to ' + ch + '!';
                 slackAlertBtn.classList.add('sent');
@@ -199,269 +177,64 @@
                     slackAlertBtn.textContent = '📢 Alert ' + ch;
                     slackAlertBtn.classList.remove('sent');
                 }, 2500);
+                return;
             }
         });
 
-        // Executive Brief Format Toggle & Copy
+        // 6. Brief Format Toggle & Copy
         const formatBtns = document.querySelectorAll('#brief-format-toggle .format-btn');
-        const copyBriefBtn = document.getElementById('hero-copy-brief-btn');
+        const copyBriefBtn = document.getElementById('copy-brief-btn');
         formatBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 formatBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 activeBriefFormat = btn.dataset.format || 'summary';
-                updateBriefContent();
+                renderBriefView();
             });
         });
 
         if (copyBriefBtn) {
             copyBriefBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(getRawBriefText()).then(() => {
-                    copyBriefBtn.textContent = '✓ Copied!';
-                    setTimeout(() => { copyBriefBtn.textContent = '📋 Copy Brief'; }, 2500);
+                    copyBriefBtn.textContent = '✓ Copied Brief!';
+                    setTimeout(() => { copyBriefBtn.textContent = '📋 Copy Brief'; }, 2200);
                 });
             });
         }
 
-        // Modal Copy Buttons
-        const copyPrdBtn = document.getElementById('copy-modal-prd-btn');
-        if (copyPrdBtn) {
-            copyPrdBtn.addEventListener('click', () => {
-                if (!activeModalSignal) return;
-                const prd = activeModalSignal.mini_prd;
-                const md = `# [MINI-PRD] Strategic Response to ${activeModalSignal.competitor}\n` +
-                    `**Pillar**: ${activeModalSignal.jtbd_pillar || ''} | **Impact**: ${activeModalSignal.impact_scoring ? activeModalSignal.impact_scoring.classification : ''}\n\n` +
-                    `## 1. Problem Statement & Dynamic\n${prd.problem_statement}\n\n` +
-                    `## 2. Proposed MVP Counter-Response\n${prd.proposed_mvp_response}\n\n` +
-                    `## 3. Target Business Metrics\n${prd.target_metrics.map(m => '- [ ] ' + m).join('\n')}\n\n` +
-                    `## 4. Explicit Out-of-Scope (Guardrails)\n${prd.explicit_out_of_scope.map(s => '- ❌ ' + s).join('\n')}\n\n` +
-                    `## 5. Verification Source Artifact\n${activeModalSignal.source_url}`;
-
-                navigator.clipboard.writeText(md).then(() => {
-                    copyPrdBtn.textContent = '✓ Copied to Clipboard!';
-                    setTimeout(() => { copyPrdBtn.textContent = '📋 Copy Mini-PRD (Markdown)'; }, 2500);
-                });
-            });
-        }
-
-        const copyJiraBtn = document.getElementById('copy-modal-jira-btn');
-        if (copyJiraBtn) {
-            copyJiraBtn.addEventListener('click', () => {
-                if (!activeModalSignal) return;
-                const j = activeModalSignal.jira_gherkin_story;
-                const txt = `h2. ${j.epic_title}\n\n*User Story:*\n${j.user_story}\n\n*Gherkin Scenarios:*\n{code}\n${j.gherkin_scenarios.join('\n\n')}\n{code}\n\n*Definition of Done:*\n${j.acceptance_criteria.map(ac => '# ' + ac).join('\n')}`;
-
-                navigator.clipboard.writeText(txt).then(() => {
-                    copyJiraBtn.textContent = '✓ Copied for Jira / Linear!';
-                    setTimeout(() => { copyJiraBtn.textContent = '📋 Copy Jira Epic'; }, 2500);
-                });
-            });
-        }
-
-        // Simulator Slider Listeners
+        // 7. Simulator Slider Listeners
         document.body.addEventListener('input', (e) => {
             if (e.target.id === 'slider-yield-rate') {
                 simYieldRate = parseFloat(e.target.value);
-                renderSimulator();
+                renderSimulatorView();
             } else if (e.target.id === 'slider-avg-cash') {
                 simAvgCash = parseInt(e.target.value, 10);
-                renderSimulator();
+                renderSimulatorView();
             } else if (e.target.id === 'slider-bounty') {
                 simBountyBonus = parseInt(e.target.value, 10);
-                renderSimulator();
+                renderSimulatorView();
             } else if (e.target.id === 'slider-transfer-size') {
                 simTransferSize = parseInt(e.target.value, 10);
-                renderSimulator();
+                renderSimulatorView();
             }
         });
     }
 
-    function openUnifiedSignalModal(signalId, defaultTab) {
-        const signal = signalsData.find(s => s.id === signalId || s.id.indexOf(signalId) !== -1) || signalsData[0];
-        activeModalSignal = signal;
-
-        // Populate Header
-        const compClass = (signal.competitor || 'default').toLowerCase().replace(/\s+/g, '-');
-        const badgeEl = document.getElementById('modal-competitor-badge');
-        if (badgeEl) {
-            badgeEl.className = 'badge badge-' + compClass;
-            badgeEl.textContent = signal.competitor;
-        }
-
-        const titleEl = document.getElementById('modal-signal-title');
-        if (titleEl) titleEl.textContent = signal.change_summary || 'Competitor Signal';
-
-        const subtitleEl = document.getElementById('modal-signal-subtitle');
-        if (subtitleEl) subtitleEl.textContent = `Pillar: ${signal.jtbd_pillar || 'Value Realization'} · Impact: ${signal.impact_scoring ? signal.impact_scoring.classification : 'Moat'}`;
-
-        // Populate PRD Tab
-        const prdProblem = document.getElementById('modal-prd-problem');
-        if (prdProblem) prdProblem.textContent = signal.mini_prd.problem_statement;
-
-        const prdResponse = document.getElementById('modal-prd-response');
-        if (prdResponse) prdResponse.textContent = signal.mini_prd.proposed_mvp_response;
-
-        const prdMetrics = document.getElementById('modal-prd-metrics');
-        if (prdMetrics) prdMetrics.innerHTML = signal.mini_prd.target_metrics.map(m => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(m)}</li>`).join('');
-
-        const prdOutOfScope = document.getElementById('modal-prd-out-of-scope');
-        if (prdOutOfScope) prdOutOfScope.innerHTML = signal.mini_prd.explicit_out_of_scope.map(s => `<li>❌ ${escapeHtml(s)}</li>`).join('');
-
-        // Populate Jira Tab
-        const jiraTitle = document.getElementById('modal-jira-title');
-        if (jiraTitle) jiraTitle.textContent = signal.jira_gherkin_story.epic_title;
-
-        const jiraStory = document.getElementById('modal-jira-story');
-        if (jiraStory) jiraStory.textContent = signal.jira_gherkin_story.user_story;
-
-        const jiraGherkin = document.getElementById('modal-jira-gherkin');
-        if (jiraGherkin) jiraGherkin.textContent = signal.jira_gherkin_story.gherkin_scenarios.join('\n\n');
-
-        const jiraAc = document.getElementById('modal-jira-ac');
-        if (jiraAc) jiraAc.innerHTML = signal.jira_gherkin_story.acceptance_criteria.map(ac => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(ac)}</li>`).join('');
-
-        // Populate Provenance Tab
-        const provSource = document.getElementById('modal-prov-source');
-        if (provSource) provSource.textContent = signal.source_tier || 'Primary Feed';
-
-        const provTime = document.getElementById('modal-prov-timestamp');
-        if (provTime) provTime.textContent = signal.timestamp || '2026-08-16 05:00:00 UTC';
-
-        const provHash = document.getElementById('modal-prov-hash');
-        if (provHash) provHash.textContent = 'SHA256:' + (signal.id.replace(/[^a-f0-9]/gi, '').padEnd(32, 'a').substring(0, 32));
-
-        const provDiff = document.getElementById('modal-prov-diff');
-        if (provDiff) provDiff.innerHTML = formatDiff(signal.diff_snippet);
-
-        const provRaw = document.getElementById('modal-prov-raw');
-        if (provRaw) provRaw.textContent = signal.raw_payload_snippet || signal.change_summary;
-
-        const provLink = document.getElementById('modal-prov-link');
-        if (provLink) provLink.href = signal.source_url || '#';
-
-        // Select active sub-tab
-        const targetTab = defaultTab || 'prd';
-        document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.modalTab === targetTab));
-        document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.toggle('active', c.id === 'modal-tab-' + targetTab));
-
-        // Show modal
-        const modal = document.getElementById('signal-modal');
-        if (modal) modal.classList.add('active');
-    }
-
-    function renderBaselineModal() {
-        const c = document.getElementById('baseline-modal-body');
-        if (!c || !baselineData.core_offering) return;
-
-        c.innerHTML = `
-            <div class="spec-section">
-                <h4>1. Trade Republic Pricing Baseline</h4>
-                <p class="spec-text"><strong>Uninvested Cash Interest:</strong> ${escapeHtml(baselineData.core_offering.cash_interest)}</p>
-                <p class="spec-text"><strong>Custody Fee:</strong> ${escapeHtml(baselineData.core_offering.custody_fee)}</p>
-                <p class="spec-text"><strong>Order Execution:</strong> ${escapeHtml(baselineData.core_offering.order_cost)}</p>
-                <p class="spec-text"><strong>Automated Savings Plans:</strong> ${escapeHtml(baselineData.core_offering.savings_plans)}</p>
-            </div>
-            <div class="spec-section">
-                <h4>2. Card & Saveback Mechanics</h4>
-                <p class="spec-text"><strong>Monthly Card Fee:</strong> ${escapeHtml(baselineData.core_offering.card_monthly_fee)}</p>
-                <p class="spec-text"><strong>Card Saveback:</strong> ${escapeHtml(baselineData.core_offering.saveback_rate)}</p>
-            </div>
-            <div class="spec-section">
-                <h4>3. Grounding & Anti-Hallucination Policy</h4>
-                <p class="spec-text">All competitive signals synthesized by this system are deterministically validated against this baseline to ensure mathematically sound deltas without hallucinated claims.</p>
-            </div>
-        `;
+    function getSelectedSignal() {
+        return signalsData.find(s => s.id === selectedSignalId) || signalsData[0];
     }
 
     function render() {
-        renderKpis();
-        renderSignalList();
-        renderParityMatrix();
-        updateBriefContent();
-        renderTakeaways();
-        renderSimulator();
-        renderArchitecture();
+        renderRadarMasterList();
+        renderInspectorDrawer();
+        renderBriefView();
+        renderParityTable();
+        renderSimulatorView();
+        renderIntegrityView();
     }
 
-    function renderKpis() {
-        const kpiStrip = document.getElementById('kpi-strip');
-        if (!kpiStrip) return;
-
-        if (activePersona === 'exec') {
-            kpiStrip.innerHTML = `
-                <div class="kpi-card">
-                    <div class="kpi-label">Net Yield Margin Moat</div>
-                    <div class="kpi-val text-emerald">+75 bps Lead</div>
-                    <div class="kpi-sub">TR 3.75% vs N26 3.00% (€0 fee)</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">High-Tier AUC at Risk</div>
-                    <div class="kpi-val text-blue">€24.2M</div>
-                    <div class="kpi-sub">Scalable €100 poaching bonus defense</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Paid Acquisition Arbitrage</div>
-                    <div class="kpi-val text-indigo">+22% CAC Gain</div>
-                    <div class="kpi-sub">Capitalizing on N26 KYC instability</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Roadmap Focus Protection</div>
-                    <div class="kpi-val text-purple">100% Core Focus</div>
-                    <div class="kpi-sub">Revolut Ultra €45/mo vanity tier rejected</div>
-                </div>
-            `;
-        } else if (activePersona === 'eng') {
-            kpiStrip.innerHTML = `
-                <div class="kpi-card">
-                    <div class="kpi-label">Dev Sprints Protected</div>
-                    <div class="kpi-val text-purple">+2 Sprints</div>
-                    <div class="kpi-sub">0 SP wasted on luxury lifestyle gimmicks</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Sprint Backlog Ready</div>
-                    <div class="kpi-val text-blue">6 Epics</div>
-                    <div class="kpi-sub">Structured Gherkin BDD user stories</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Latency SLO Target</div>
-                    <div class="kpi-val text-emerald">&lt; 200ms p95</div>
-                    <div class="kpi-sub">Zero performance regression constraint</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Ingestion Grounding</div>
-                    <div class="kpi-val text-indigo">100% Verified</div>
-                    <div class="kpi-sub">SHA-256 AST unified diff hashes</div>
-                </div>
-            `;
-        } else {
-            // PM View
-            kpiStrip.innerHTML = `
-                <div class="kpi-card">
-                    <div class="kpi-label">Yield Spread Moat</div>
-                    <div class="kpi-val text-emerald">+75 bps</div>
-                    <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Protected Custody AUC</div>
-                    <div class="kpi-val text-blue">€24.2M</div>
-                    <div class="kpi-sub">Scalable €100 transfer poaching defense</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Onboarding Velocity Lead</div>
-                    <div class="kpi-val text-indigo">3 Min</div>
-                    <div class="kpi-sub">vs N26 4.3★ KYC loops (v12.4)</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Sprint Capacity Protected</div>
-                    <div class="kpi-val text-purple">+2 Sprints</div>
-                    <div class="kpi-sub">Revolut Ultra €45/mo noise filtered</div>
-                </div>
-            `;
-        }
-    }
-
-    function renderSignalList() {
-        const container = document.getElementById('signals-container');
+    function renderRadarMasterList() {
+        const container = document.getElementById('master-signal-list');
         if (!container) return;
 
         // Apply filters
@@ -482,280 +255,188 @@
             });
         }
 
-        // Update count badge
-        const countBadge = document.getElementById('tab-feed-count');
-        if (countBadge) countBadge.textContent = filtered.length;
-
         if (!filtered.length) {
-            container.innerHTML = `<div class="empty-state" style="padding:40px;text-align:center;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">No competitor signals match your active filter or search query.</div>`;
+            container.innerHTML = `<div class="empty-state" style="padding:32px;text-align:center;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;">No competitor signals match your active filter.</div>`;
             return;
+        }
+
+        // Ensure a valid selected signal exists in filtered
+        if (!filtered.find(s => s.id === selectedSignalId)) {
+            selectedSignalId = filtered[0].id;
+            renderInspectorDrawer();
         }
 
         container.innerHTML = filtered.map(s => {
             const compClass = (s.competitor || 'default').toLowerCase().replace(/\s+/g, '-');
             const categoryDisplay = (s.category || 'signal').replace('_', ' ').toUpperCase();
+            const isActive = s.id === selectedSignalId ? 'active' : '';
             
-            // Impact & Moat Styling
             let moatClass = 'parity';
             let moatLabel = 'Parity Check';
-            let boxAccent = '';
 
             if (s.tr_delta) {
-                if (s.tr_delta.moat_status === 'leader') { moatClass = 'moat'; moatLabel = '🏰 ' + s.tr_delta.moat_label; boxAccent = 'moat-accent'; }
-                else if (s.tr_delta.moat_status === 'threat') { moatClass = 'threat'; moatLabel = '🛡️ ' + s.tr_delta.moat_label; boxAccent = 'threat-accent'; }
-                else if (s.tr_delta.moat_status === 'noise') { moatClass = 'noise'; moatLabel = '🔇 ' + s.tr_delta.moat_label; boxAccent = 'noise-accent'; }
+                if (s.tr_delta.moat_status === 'leader') { moatClass = 'moat'; moatLabel = '🏰 ' + s.tr_delta.moat_label; }
+                else if (s.tr_delta.moat_status === 'threat') { moatClass = 'threat'; moatLabel = '🛡️ ' + s.tr_delta.moat_label; }
+                else if (s.tr_delta.moat_status === 'noise') { moatClass = 'noise'; moatLabel = '🔇 ' + s.tr_delta.moat_label; }
                 else { moatClass = 'parity'; moatLabel = '⚡ Parity Watch'; }
             } else if (s.impact_scoring) {
-                if (s.impact_scoring.classification === 'Differentiator (Moat)') { moatClass = 'moat'; moatLabel = '🏰 Moat Lead'; boxAccent = 'moat-accent'; }
-                else if (s.impact_scoring.classification === 'Noise (Low ROI)') { moatClass = 'noise'; moatLabel = '🔇 Low-ROI Noise'; boxAccent = 'noise-accent'; }
-                else { moatClass = 'threat'; moatLabel = '🛡️ Defensive'; boxAccent = 'threat-accent'; }
+                if (s.impact_scoring.classification === 'Differentiator (Moat)') { moatClass = 'moat'; moatLabel = '🏰 Moat Lead'; }
+                else if (s.impact_scoring.classification === 'Noise (Low ROI)') { moatClass = 'noise'; moatLabel = '🔇 Low-ROI Noise'; }
+                else { moatClass = 'threat'; moatLabel = '🛡️ Defensive'; }
             }
 
-            const trBaseline = s.tr_delta ? s.tr_delta.tr_baseline : '3.75% p.a. cash yield, €0 custody, €1 flat trading';
             const deltaImp = s.tr_delta ? s.tr_delta.delta_implication : s.why_it_matters;
-            const pmAction = s.tr_delta ? s.tr_delta.pm_action : (s.mini_prd ? s.mini_prd.proposed_mvp_response : 'Review competitive move');
             const targetMetric = s.tr_delta ? s.tr_delta.target_metric : (s.mini_prd && s.mini_prd.target_metrics ? s.mini_prd.target_metrics[0] : '🎯 Target KPI');
-            const slackChannel = s.category === 'pricing' ? '#pricing-committee' : s.category === 'marketing_promo' ? '#growth-squad' : '#product-core';
-            const storyPoints = s.dev_sp || '3 SP (1 Sprint)';
-            const outOfScope = s.tr_delta ? s.tr_delta.out_of_scope : (s.mini_prd && s.mini_prd.explicit_out_of_scope ? s.mini_prd.explicit_out_of_scope[0] : 'Do NOT alter core pricing');
 
-            // PERSONA 1: C-SUITE EXECUTIVE VIEW
-            if (activePersona === 'exec') {
-                return `
-                    <div class="signal-clean-card">
-                        <div class="card-top-meta">
-                            <div class="card-tags-left">
-                                <span class="badge badge-${compClass}">${s.competitor}</span>
-                                <span class="category-tag">${categoryDisplay}</span>
-                                <span class="moat-tag ${moatClass}">${moatLabel}</span>
-                            </div>
-                            <div class="card-meta-right">
-                                <span>🕒 Verified Today</span>
-                                <span class="source-provenance-tag">· Board Impact High</span>
-                            </div>
-                        </div>
-
-                        <div class="card-headline">${escapeHtml(s.change_summary || '')}</div>
-
-                        <div class="card-delta-box ${boxAccent}">
-                            <div class="delta-col">
-                                <span class="delta-label">Executive & Margin Exposure</span>
-                                <span class="delta-text">${escapeHtml(deltaImp)}</span>
-                            </div>
-                            <div class="delta-col">
-                                <span class="delta-label">CPO / Board Recommendation</span>
-                                <span class="delta-action-text">${escapeHtml(pmAction)}</span>
-                            </div>
-                            <div class="delta-kpi-badge">${escapeHtml(targetMetric)}</div>
-                        </div>
-
-                        <div class="card-bottom-actions">
-                            <div class="actions-left">
-                                <button class="btn-card-primary btn-open-signal-modal" data-id="${s.id}" data-default-tab="prd">
-                                    📝 Read 1-Page PRD
-                                </button>
-                                <button class="btn-card-secondary" onclick="document.querySelector('.tab-btn[data-tab=simulator]').click()">
-                                    🧮 Model What-If in Simulator
-                                </button>
-                            </div>
-                            <button class="btn-slack-alert" data-channel="#c-suite-intel">
-                                📢 Send Executive Briefing
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // PERSONA 2: ENGINEERING SQUAD VIEW
-            if (activePersona === 'eng') {
-                return `
-                    <div class="signal-clean-card">
-                        <div class="card-top-meta">
-                            <div class="card-tags-left">
-                                <span class="badge badge-${compClass}">${s.competitor}</span>
-                                <span class="sp-tag">⚡ ${escapeHtml(storyPoints)}</span>
-                                ${s.friction_target ? `<span class="friction-tag">🎯 ${escapeHtml(s.friction_target)}</span>` : ''}
-                                <span class="slo-tag">⚡ Latency p95 &lt; 200ms</span>
-                            </div>
-                            <div class="card-meta-right">
-                                <span class="source-provenance-tag">SHA-256 Verified</span>
-                            </div>
-                        </div>
-
-                        <div class="card-headline">${escapeHtml(s.change_summary || '')}</div>
-
-                        <div class="card-delta-box ${boxAccent}">
-                            <div class="delta-col">
-                                <span class="delta-label">Architectural / Technical Delta</span>
-                                <span class="delta-text">${escapeHtml(deltaImp)}</span>
-                            </div>
-                            <div class="delta-col">
-                                <span class="delta-label">Explicit Out-of-Scope (Roadmap Guardrail)</span>
-                                <span class="delta-action-text text-rose" style="color:#b91c1c;">❌ ${escapeHtml(outOfScope)}</span>
-                            </div>
-                            <div class="delta-kpi-badge">⚡ Sprint Ready</div>
-                        </div>
-
-                        <div class="card-inline-diff">
-                            <div class="diff-content">${formatDiff(s.diff_snippet)}</div>
-                        </div>
-
-                        <div class="card-bottom-actions">
-                            <div class="actions-left">
-                                <button class="btn-card-primary btn-open-signal-modal" data-id="${s.id}" data-default-tab="jira">
-                                    ⚡ Copy Jira Gherkin
-                                </button>
-                                <button class="btn-card-secondary btn-toggle-inline-diff">
-                                    🔍 AST Unified Diff
-                                </button>
-                                <button class="btn-card-secondary btn-open-signal-modal" data-id="${s.id}" data-default-tab="provenance">
-                                    🛡️ Ingestion Payload
-                                </button>
-                            </div>
-                            <button class="btn-slack-alert" data-channel="${slackChannel}">
-                                🚀 Dispatch to ${slackChannel}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // PERSONA 3: PRODUCT LEAD VIEW (DEFAULT)
             return `
-                <div class="signal-clean-card">
-                    <div class="card-top-meta">
-                        <div class="card-tags-left">
+                <div class="signal-row-item ${isActive}" data-id="${s.id}">
+                    <div class="row-top-meta">
+                        <div class="row-tags">
                             <span class="badge badge-${compClass}">${s.competitor}</span>
                             <span class="category-tag">${categoryDisplay}</span>
-                            <span class="moat-tag ${moatClass}">${moatLabel}</span>
                         </div>
-                        <div class="card-meta-right">
-                            <span>🕒 Verified Today</span>
-                            <span class="source-provenance-tag">· ${s.source_tier || 'Tier 1 Feed'}</span>
-                        </div>
+                        <span class="row-time">Verified Today</span>
                     </div>
 
-                    <div class="card-headline">${escapeHtml(s.change_summary || '')}</div>
+                    <div class="row-title">${escapeHtml(s.change_summary || '')}</div>
+                    <div class="row-delta-snippet">${escapeHtml(deltaImp)}</div>
 
-                    <div class="card-delta-box ${boxAccent}">
-                        <div class="delta-col">
-                            <span class="delta-label">Trade Republic Baseline</span>
-                            <span class="delta-text">${escapeHtml(trBaseline)}</span>
-                        </div>
-                        <div class="delta-col">
-                            <span class="delta-label">Strategic Delta & Recommended Action</span>
-                            <span class="delta-action-text">${escapeHtml(pmAction)}</span>
-                        </div>
-                        <div class="delta-kpi-badge">${escapeHtml(targetMetric)}</div>
-                    </div>
-
-                    <div class="card-inline-diff">
-                        <div class="diff-content">${formatDiff(s.diff_snippet)}</div>
-                    </div>
-
-                    <div class="card-bottom-actions">
-                        <div class="actions-left">
-                            <button class="btn-card-primary btn-open-signal-modal" data-id="${s.id}" data-default-tab="prd">
-                                📝 View PRD & Jira Story
-                            </button>
-                            <button class="btn-card-secondary btn-toggle-inline-diff">
-                                🔍 AST Diff
-                            </button>
-                            <button class="btn-card-secondary btn-open-signal-modal" data-id="${s.id}" data-default-tab="provenance">
-                                🛡️ Grounding Hash
-                            </button>
-                        </div>
-                        <button class="btn-slack-alert" data-channel="${slackChannel}">
-                            📢 Alert ${slackChannel}
-                        </button>
+                    <div class="row-bottom-meta">
+                        <span class="moat-tag ${moatClass}">${moatLabel}</span>
+                        <span class="row-kpi-pill">${escapeHtml(targetMetric)}</span>
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    function renderParityMatrix() {
-        const container = document.getElementById('parity-container');
+    function renderInspectorDrawer() {
+        const container = document.getElementById('detail-inspector-pane');
         if (!container) return;
 
+        const signal = getSelectedSignal();
+        if (!signal) {
+            container.innerHTML = `<div style="padding:24px;color:#64748b;">Select a signal from the list to view tactical specs.</div>`;
+            return;
+        }
+
+        const compClass = (signal.competitor || 'default').toLowerCase().replace(/\s+/g, '-');
+        const trBaseline = signal.tr_delta ? signal.tr_delta.tr_baseline : '3.75% p.a. cash yield, €0 custody, €1 flat trading';
+        const deltaImp = signal.tr_delta ? signal.tr_delta.delta_implication : signal.why_it_matters;
+        const pmAction = signal.tr_delta ? signal.tr_delta.pm_action : (signal.mini_prd ? signal.mini_prd.proposed_mvp_response : 'Review competitive move');
+        const targetMetric = signal.tr_delta ? signal.tr_delta.target_metric : (signal.mini_prd && signal.mini_prd.target_metrics ? signal.mini_prd.target_metrics[0] : '🎯 Target KPI');
+        const slackChannel = signal.category === 'pricing' ? '#pricing-committee' : signal.category === 'marketing_promo' ? '#growth-squad' : '#product-core';
+        const storyPoints = signal.dev_sp || '3 SP (1 Sprint)';
+        const hash = 'SHA256:' + (signal.id.replace(/[^a-f0-9]/gi, '').padEnd(32, 'a').substring(0, 32));
+
         container.innerHTML = `
-            <div class="parity-table-container">
-                <table class="parity-table">
-                    <thead>
-                        <tr>
-                            <th>Competitor</th>
-                            <th>Observed Move</th>
-                            <th>Trade Republic Baseline</th>
-                            <th>Strategic Delta</th>
-                            <th>Recommended PM Action</th>
-                            <th>Target KPI Impact</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="badge badge-n26">N26</span></td>
-                            <td><strong>Instant Savings hiked to 3.00% p.a.</strong></td>
-                            <td>3.75% p.a. on cash up to €50k</td>
-                            <td><strong class="text-emerald">+75 bps</strong> net yield advantage</td>
-                            <td>Do NOT raise rate; run acquisition campaign on yield spread</td>
-                            <td><span class="delta-kpi-badge">📈 +14% Deposit Retention</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge badge-scalable-capital">Scalable</span></td>
-                            <td><strong>PRIME+ yield lowered to 3.75%</strong></td>
-                            <td>3.75% p.a. (€0/mo fee)</td>
-                            <td>Scalable charges €60/yr; TR is <strong>€0 Free</strong></td>
-                            <td>Contrast ad: <em>"Why pay €60/yr for 3.75% yield?"</em></td>
-                            <td><span class="delta-kpi-badge">📉 -18% Switcher CAC</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge badge-scalable-capital">Scalable</span></td>
-                            <td><strong>€100 Portfolio Transfer Bonus</strong></td>
-                            <td>Free custody, €1 flat trading</td>
-                            <td>Poaching attack on >€10k custody</td>
-                            <td>VIP summary showing €300+ lifetime fee savings</td>
-                            <td><span class="delta-kpi-badge">🛡️ €24M+ AUC Protected</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge badge-n26">N26</span></td>
-                            <td><strong>Rating drops to 4.3★ (v12.4 bugs)</strong></td>
-                            <td>4.6★ rating, 3-min KYC</td>
-                            <td>Onboarding drop-off at competitor</td>
-                            <td>Launch acquisition ads: <em>"Buy first ETF in 3 mins"</em></td>
-                            <td><span class="delta-kpi-badge">🎯 +22% Paid CAC Efficiency</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge badge-revolut">Revolut</span></td>
-                            <td><strong>€60 Referral Bounty Boost</strong></td>
-                            <td>€10-€20 stock + 1% Saveback</td>
-                            <td>High CAC bounty pressure</td>
-                            <td>Activate Saveback Payroll Multiplier (+0.5%)</td>
-                            <td><span class="delta-kpi-badge">⚡ 1.8x Account Lock-in</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge badge-bitpanda">Bitpanda</span></td>
-                            <td><strong>Staking yields cut (ETH 3.1%)</strong></td>
-                            <td>€1 flat crypto fee + €0 plans</td>
-                            <td>Yield compression across sector</td>
-                            <td>Promote €0 automated crypto savings plans in discovery</td>
-                            <td><span class="delta-kpi-badge">💰 +10% Crypto Trade Volume</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge badge-revolut">Revolut</span></td>
-                            <td><strong>Ultra Tier launched at €45/mo</strong></td>
-                            <td>Free card with 1% Saveback</td>
-                            <td>Lifestyle status bloat</td>
-                            <td>Filter as low-ROI noise; protect squad roadmap</td>
-                            <td><span class="delta-kpi-badge">⏱️ +2 Dev Sprints Saved</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="inspector-header">
+                <div class="inspector-header-top">
+                    <span class="badge badge-${compClass}">${signal.competitor}</span>
+                    <span class="category-tag">${(signal.category||'').toUpperCase()}</span>
+                    <span class="row-time">${signal.source_tier || 'Tier 1 Feed'}</span>
+                </div>
+                <div class="inspector-title">${escapeHtml(signal.change_summary || '')}</div>
+                <div class="inspector-subtitle">Pillar: <strong>${signal.jtbd_pillar || 'Value Realization'}</strong> · Impact: <strong>${signal.impact_scoring ? signal.impact_scoring.classification : 'Moat'}</strong></div>
+            </div>
+
+            <div class="inspector-subtabs">
+                <button class="inspector-tab-btn ${activeInspectorTab === 'prd' ? 'active' : ''}" data-inspector-tab="prd">📝 1-Page PRD</button>
+                <button class="inspector-tab-btn ${activeInspectorTab === 'jira' ? 'active' : ''}" data-inspector-tab="jira">⚡ Jira Story (${escapeHtml(storyPoints)})</button>
+                <button class="inspector-tab-btn ${activeInspectorTab === 'diff' ? 'active' : ''}" data-inspector-tab="diff">🔍 AST Diff & Provenance</button>
+            </div>
+
+            <div class="inspector-body">
+                <!-- Tab 1: Mini-PRD -->
+                <div class="inspector-tab-content ${activeInspectorTab === 'prd' ? 'active' : ''}" id="insp-tab-prd">
+                    <div class="spec-section">
+                        <h4>1. Strategic Delta & TR Baseline</h4>
+                        <p class="spec-text"><strong>TR Baseline:</strong> ${escapeHtml(trBaseline)}</p>
+                        <p class="spec-text" style="margin-top:4px;"><strong>Market Delta:</strong> ${escapeHtml(deltaImp)}</p>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>2. Proposed MVP Counter-Response</h4>
+                        <p class="spec-text" style="color:#0f172a;font-weight:600;">${escapeHtml(pmAction)}</p>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>3. Target Business Metrics</h4>
+                        <ul class="spec-list">
+                            ${signal.mini_prd.target_metrics.map(m => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(m)}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="spec-section out-of-scope-banner">
+                        <h4>4. Explicit Out-of-Scope Guardrails (What NOT to build)</h4>
+                        <ul class="spec-list">
+                            ${signal.mini_prd.explicit_out_of_scope.map(s => `<li>❌ ${escapeHtml(s)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Jira Gherkin -->
+                <div class="inspector-tab-content ${activeInspectorTab === 'jira' ? 'active' : ''}" id="insp-tab-jira">
+                    <div class="spec-section">
+                        <h4>Epic Title</h4>
+                        <p class="spec-code">${escapeHtml(signal.jira_gherkin_story.epic_title)}</p>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>User Story</h4>
+                        <p class="spec-text">${escapeHtml(signal.jira_gherkin_story.user_story)}</p>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>Gherkin Scenarios (Given / When / Then)</h4>
+                        <pre class="gherkin-box">${escapeHtml(signal.jira_gherkin_story.gherkin_scenarios.join('\n\n'))}</pre>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>Definition of Done & Latency SLO (<200ms p95)</h4>
+                        <ul class="spec-list">
+                            ${signal.jira_gherkin_story.acceptance_criteria.map(ac => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(ac)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Unified AST Diff & Provenance -->
+                <div class="inspector-tab-content ${activeInspectorTab === 'diff' ? 'active' : ''}" id="insp-tab-diff">
+                    <div class="spec-section">
+                        <h4>Unified AST Character Diff</h4>
+                        <div class="diff-content">${formatDiff(signal.diff_snippet)}</div>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>Cryptographic Grounding Verification</h4>
+                        <p class="spec-code">${hash}</p>
+                    </div>
+
+                    <div class="spec-section">
+                        <h4>Primary Canonical Document</h4>
+                        <a href="${signal.source_url}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="margin-top:4px;">
+                            Verify Primary Source (${signal.source_tier}) ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inspector-actions-footer">
+                ${activeInspectorTab === 'prd' 
+                    ? `<button class="btn-primary" id="btn-copy-drawer-prd">📋 Copy Mini-PRD</button>`
+                    : activeInspectorTab === 'jira'
+                    ? `<button class="btn-primary" id="btn-copy-drawer-jira">⚡ Copy Jira Story</button>`
+                    : `<a href="${signal.source_url}" target="_blank" class="btn-primary" style="text-decoration:none;">Verify Source ↗</a>`
+                }
+                <button class="btn-slack-alert" data-channel="${slackChannel}">
+                    📢 Alert ${slackChannel}
+                </button>
             </div>
         `;
     }
 
-    function updateBriefContent() {
-        const container = document.getElementById('brief-hero-content');
+    function renderBriefView() {
+        const container = document.getElementById('brief-content-area');
         if (!container) return;
 
         if (activeBriefFormat === 'summary') {
@@ -848,34 +529,86 @@ RECOMMENDATIONS:
 - Prepare retention messaging for high-balance accounts.`;
     }
 
-    function renderTakeaways() {
-        const container = document.getElementById('takeaways-container');
+    function renderParityTable() {
+        const container = document.getElementById('parity-table-area');
         if (!container) return;
 
         container.innerHTML = `
-            <div class="brief-visual-grid">
-                <div class="sim-block">
-                    <h3>🏰 Moat Defenses & Yield Superiority</h3>
-                    <p class="delta-text" style="margin-bottom:12px;">Trade Republic maintains a clear structural advantage in uninvested cash interest and €0 custody fee architecture.</p>
-                    <div class="brief-bullet-card">
-                        <div class="brief-bullet-title"><span class="badge badge-tr">Growth</span> Yield Contrast Campaign</div>
-                        <div class="brief-bullet-desc">Contrast TR's 3.75% free cash rate with Scalable's €60/yr PRIME+ requirement and N26's 3.00% ceiling.</div>
-                    </div>
-                </div>
-                <div class="sim-block">
-                    <h3>🛡️ Offensive Acquisition Against Competitor Friction</h3>
-                    <p class="delta-text" style="margin-bottom:12px;">Competitor release instability creates immediate acquisition arbitrage opportunities.</p>
-                    <div class="brief-bullet-card">
-                        <div class="brief-bullet-title"><span class="badge badge-tr">Performance</span> 3-Minute KYC Contrast</div>
-                        <div class="brief-bullet-desc">Run paid search & social campaigns targeting dissatisfied N26 users facing login and KYC verification loops.</div>
-                    </div>
-                </div>
-            </div>
+            <table class="parity-table">
+                <thead>
+                    <tr>
+                        <th>Competitor</th>
+                        <th>Observed Move</th>
+                        <th>Trade Republic Baseline</th>
+                        <th>Strategic Delta</th>
+                        <th>Recommended PM Action</th>
+                        <th>Target KPI Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-n26">N26</span></td>
+                        <td><strong>Instant Savings hiked to 3.00% p.a.</strong></td>
+                        <td>3.75% p.a. on cash up to €50k</td>
+                        <td><strong class="text-emerald">+75 bps</strong> net yield advantage</td>
+                        <td>Do NOT raise rate; run acquisition campaign on yield spread</td>
+                        <td><span class="row-kpi-pill">📈 +14% Deposit Retention</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-scalable-capital">Scalable</span></td>
+                        <td><strong>PRIME+ yield lowered to 3.75%</strong></td>
+                        <td>3.75% p.a. (€0/mo fee)</td>
+                        <td>Scalable charges €60/yr; TR is <strong>€0 Free</strong></td>
+                        <td>Contrast ad: <em>"Why pay €60/yr for 3.75% yield?"</em></td>
+                        <td><span class="row-kpi-pill">📉 -18% Switcher CAC</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-scalable-capital">Scalable</span></td>
+                        <td><strong>€100 Portfolio Transfer Bonus</strong></td>
+                        <td>Free custody, €1 flat trading</td>
+                        <td>Poaching attack on >€10k custody</td>
+                        <td>VIP summary showing €300+ lifetime fee savings</td>
+                        <td><span class="row-kpi-pill">🛡️ €24M+ AUC Protected</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-n26">N26</span></td>
+                        <td><strong>Rating drops to 4.3★ (v12.4 bugs)</strong></td>
+                        <td>4.6★ rating, 3-min KYC</td>
+                        <td>Onboarding drop-off at competitor</td>
+                        <td>Launch acquisition ads: <em>"Buy first ETF in 3 mins"</em></td>
+                        <td><span class="row-kpi-pill">🎯 +22% Paid CAC Efficiency</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-revolut">Revolut</span></td>
+                        <td><strong>€60 Referral Bounty Boost</strong></td>
+                        <td>€10-€20 stock + 1% Saveback</td>
+                        <td>High CAC bounty pressure</td>
+                        <td>Activate Saveback Payroll Multiplier (+0.5%)</td>
+                        <td><span class="row-kpi-pill">⚡ 1.8x Account Lock-in</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-bitpanda">Bitpanda</span></td>
+                        <td><strong>Staking yields cut (ETH 3.1%)</strong></td>
+                        <td>€1 flat crypto fee + €0 plans</td>
+                        <td>Yield compression across sector</td>
+                        <td>Promote €0 automated crypto savings plans in discovery</td>
+                        <td><span class="row-kpi-pill">💰 +10% Crypto Trade Volume</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-revolut">Revolut</span></td>
+                        <td><strong>Ultra Tier launched at €45/mo</strong></td>
+                        <td>Free card with 1% Saveback</td>
+                        <td>Lifestyle status bloat</td>
+                        <td>Filter as low-ROI noise; protect squad roadmap</td>
+                        <td><span class="row-kpi-pill">⏱️ +2 Dev Sprints Saved</span></td>
+                    </tr>
+                </tbody>
+            </table>
         `;
     }
 
-    function renderSimulator() {
-        const container = document.getElementById('simulator-container');
+    function renderSimulatorView() {
+        const container = document.getElementById('simulator-content-area');
         if (!container) return;
 
         const trRate = 3.75;
@@ -885,124 +618,126 @@ RECOMMENDATIONS:
         const netPoachingAdvantage = feeSaving - simBountyBonus;
 
         container.innerHTML = `
-            <div class="simulator-card">
-                <div class="arch-header">
-                    <h2>🧮 What-If Strategic Decision Simulator</h2>
-                    <p class="modal-subtitle">Model yield spread sensitivity, transfer bounty economics, and AUC protection thresholds</p>
-                </div>
-                <div class="simulator-grid">
-                    <div class="sim-block">
-                        <h3>1. Competitor Cash Yield Arbitrage</h3>
-                        <div class="sim-control-group">
-                            <div class="sim-control-header">
-                                <span>Competitor Rate: <strong id="val-yield-rate">${simYieldRate.toFixed(2)}%</strong></span>
-                                <span>TR Baseline: 3.75%</span>
-                            </div>
-                            <input type="range" id="slider-yield-rate" class="sim-slider" min="2.00" max="4.50" step="0.25" value="${simYieldRate}">
+            <div class="simulator-grid">
+                <div class="sim-block">
+                    <h3>1. Competitor Cash Yield Arbitrage</h3>
+                    <div class="sim-control-group">
+                        <div class="sim-control-header">
+                            <span>Competitor Rate: <strong id="val-yield-rate">${simYieldRate.toFixed(2)}%</strong></span>
+                            <span>TR Baseline: 3.75%</span>
                         </div>
-                        <div class="sim-control-group">
-                            <div class="sim-control-header">
-                                <span>Average Uninvested Cash: <strong id="val-avg-cash">€${simAvgCash.toLocaleString()}</strong></span>
-                            </div>
-                            <input type="range" id="slider-avg-cash" class="sim-slider" min="1000" max="25000" step="1000" value="${simAvgCash}">
-                        </div>
-                        <div class="sim-result-box">
-                            <div class="kpi-label">Trade Republic Net Yield Spread</div>
-                            <div class="sim-result-metric ${spread >= 0 ? 'text-emerald' : 'text-rose'}">${spread >= 0 ? '+' + spread : spread} bps</div>
-                            <div class="kpi-sub">Annual Cash Difference for User: <strong>€${annualYieldDiff} / year</strong></div>
-                        </div>
+                        <input type="range" id="slider-yield-rate" class="sim-slider" min="2.00" max="4.50" step="0.25" value="${simYieldRate}">
                     </div>
+                    <div class="sim-control-group">
+                        <div class="sim-control-header">
+                            <span>Average Uninvested Cash: <strong id="val-avg-cash">€${simAvgCash.toLocaleString()}</strong></span>
+                        </div>
+                        <input type="range" id="slider-avg-cash" class="sim-slider" min="1000" max="25000" step="1000" value="${simAvgCash}">
+                    </div>
+                    <div class="sim-result-box">
+                        <div class="kpi-label">Trade Republic Net Yield Spread</div>
+                        <div class="sim-result-metric ${spread >= 0 ? 'text-emerald' : 'text-rose'}">${spread >= 0 ? '+' + spread : spread} bps</div>
+                        <div class="kpi-sub">Annual Cash Difference for User: <strong>€${annualYieldDiff} / year</strong></div>
+                    </div>
+                </div>
 
-                    <div class="sim-block">
-                        <h3>2. Portfolio Transfer Bounty Defense</h3>
-                        <div class="sim-control-group">
-                            <div class="sim-control-header">
-                                <span>Competitor Bounty Bonus: <strong id="val-bounty">€${simBountyBonus}</strong></span>
-                            </div>
-                            <input type="range" id="slider-bounty" class="sim-slider" min="25" max="250" step="25" value="${simBountyBonus}">
+                <div class="sim-block">
+                    <h3>2. Portfolio Transfer Bounty Defense</h3>
+                    <div class="sim-control-group">
+                        <div class="sim-control-header">
+                            <span>Competitor Bounty Bonus: <strong id="val-bounty">€${simBountyBonus}</strong></span>
                         </div>
-                        <div class="sim-control-group">
-                            <div class="sim-control-header">
-                                <span>Average Portfolio Size: <strong id="val-transfer-size">€${simTransferSize.toLocaleString()}</strong></span>
-                            </div>
-                            <input type="range" id="slider-transfer-size" class="sim-slider" min="5000" max="50000" step="5000" value="${simTransferSize}">
+                        <input type="range" id="slider-bounty" class="sim-slider" min="25" max="250" step="25" value="${simBountyBonus}">
+                    </div>
+                    <div class="sim-control-group">
+                        <div class="sim-control-header">
+                            <span>Average Portfolio Size: <strong id="val-transfer-size">€${simTransferSize.toLocaleString()}</strong></span>
                         </div>
-                        <div class="sim-result-box">
-                            <div class="kpi-label">TR 3-Year Flat Fee Advantage vs Bounty</div>
-                            <div class="sim-result-metric text-emerald">+€${netPoachingAdvantage} Net Savings</div>
-                            <div class="kpi-sub">Lifetime flat €1 fee model surpasses one-time competitor cash bribe</div>
-                        </div>
+                        <input type="range" id="slider-transfer-size" class="sim-slider" min="5000" max="50000" step="5000" value="${simTransferSize}">
+                    </div>
+                    <div class="sim-result-box">
+                        <div class="kpi-label">TR 3-Year Flat Fee Advantage vs Bounty</div>
+                        <div class="sim-result-metric text-emerald">+€${netPoachingAdvantage} Net Savings</div>
+                        <div class="kpi-sub">Lifetime flat €1 fee model surpasses one-time competitor cash bribe</div>
                     </div>
                 </div>
             </div>
         `;
     }
 
-    function renderArchitecture() {
-        const container = document.getElementById('arch-container');
+    function renderIntegrityView() {
+        const container = document.getElementById('integrity-content-area');
         if (!container) return;
 
         container.innerHTML = `
-            <div class="arch-card">
-                <div class="arch-header">
-                    <h2>🛡️ Data Integrity & System Architecture</h2>
-                    <p class="modal-subtitle">Autonomous, 4-Stage Zero-Hallucination Pipeline with Type-Safe Zod Validation & 1-Click Execution Bridges</p>
+            <div class="arch-stats-row">
+                <div class="arch-stat-box"><span class="arch-stat-num">100.0%</span><span class="arch-stat-lbl">Benchmark Precision (n=20)</span></div>
+                <div class="arch-stat-box"><span class="arch-stat-num">100.0%</span><span class="arch-stat-lbl">Held-Out Test Recall (n=10)</span></div>
+                <div class="arch-stat-box"><span class="arch-stat-num">&lt; 3.2s</span><span class="arch-stat-lbl">End-to-End Latency</span></div>
+                <div class="arch-stat-box"><span class="arch-stat-num">0.0%</span><span class="arch-stat-lbl">Hallucination Rate</span></div>
+            </div>
+
+            <div class="arch-pipeline-grid">
+                <div class="arch-step"><div class="arch-step-num">Stage 1</div><h3>Deterministic Ingestion</h3><p>Automated collectors pulling Tier 1 pricing schedules, BaFin regulatory filings, and App Store changelog diffs.</p></div>
+                <div class="arch-step"><div class="arch-step-num">Stage 2</div><h3>AST Unified Diff Engine</h3><p>Character-level diff generation filtering marketing fluff, cookie banners, and layout redesign noise.</p></div>
+                <div class="arch-step"><div class="arch-step-num">Stage 3</div><h3>Zero-Extrapolation Gateway</h3><p>Forced NULL on unmentioned claims; type-safe Zod validation schemas on every signal payload.</p></div>
+                <div class="arch-step"><div class="arch-step-num">Stage 4</div><h3>Execution Bridge</h3><p>1-click Counter-PRDs with explicit Out-of-Scope boundaries, Jira Gherkin user stories, and Slack webhooks.</p></div>
+            </div>
+
+            <div class="arch-pillar-grid">
+                <div class="arch-pillar-box">
+                    <h3>🛡️ Grounding & Provenance</h3>
+                    <p class="arch-pillar-desc">Replaces speculative open-web scraping with deterministic AST unified diffs and SHA-256 provenance hashes.</p>
+                    <ul class="arch-pillar-features">
+                        <li><span class="arch-feature-icon">✓</span> Primary canonical source tiering</li>
+                        <li><span class="arch-feature-icon">✓</span> Zero-extrapolation LLM prompt</li>
+                        <li><span class="arch-feature-icon">✓</span> Type-safe Zod schema validation</li>
+                    </ul>
                 </div>
 
-                <div class="arch-stats-row">
-                    <div class="arch-stat-box"><span class="arch-stat-num">100.0%</span><span class="arch-stat-lbl">Benchmark Precision (n=20)</span></div>
-                    <div class="arch-stat-box"><span class="arch-stat-num">100.0%</span><span class="arch-stat-lbl">Held-Out Test Recall (n=10)</span></div>
-                    <div class="arch-stat-box"><span class="arch-stat-num">&lt; 3.2s</span><span class="arch-stat-lbl">End-to-End Synthesis Latency</span></div>
-                    <div class="arch-stat-box"><span class="arch-stat-num">0.0%</span><span class="arch-stat-lbl">Hallucination Rate (AST Diff Grounded)</span></div>
+                <div class="arch-pillar-box">
+                    <h3>🎯 High-Signal Curation</h3>
+                    <p class="arch-pillar-desc">Filters out 50+ crawler noise to focus on high-impact strategic shifts classified across 5 core JTBD pillars.</p>
+                    <ul class="arch-pillar-features">
+                        <li><span class="arch-feature-icon">✓</span> 5 Strategic JTBD Pillars</li>
+                        <li><span class="arch-feature-icon">✓</span> Moat vs Parity vs Noise Triage</li>
+                        <li><span class="arch-feature-icon">✓</span> Dev Sprint Capacity Protection</li>
+                    </ul>
                 </div>
 
-                <div class="arch-pipeline-grid">
-                    <div class="arch-step"><div class="arch-step-num">Stage 1</div><h3>Deterministic Ingestion</h3><p>Automated collectors pulling Tier 1 pricing schedules, BaFin regulatory filings, and App Store changelog diffs.</p></div>
-                    <div class="arch-step"><div class="arch-step-num">Stage 2</div><h3>AST Unified Diff Engine</h3><p>Character-level diff generation filtering marketing fluff, cookie banners, and layout redesign noise.</p></div>
-                    <div class="arch-step"><div class="arch-step-num">Stage 3</div><h3>Zero-Extrapolation Gateway</h3><p>Forced NULL on unmentioned claims; type-safe Zod validation schemas on every signal payload.</p></div>
-                    <div class="arch-step"><div class="arch-step-num">Stage 4</div><h3>Execution Bridge</h3><p>1-click Counter-PRDs with explicit Out-of-Scope boundaries, Jira Gherkin user stories, and Slack webhooks.</p></div>
+                <div class="arch-pillar-box">
+                    <h3>⚡ Product Execution Bridge</h3>
+                    <p class="arch-pillar-desc">Transforms static intelligence feeds into sprint-ready PRDs, Jira Gherkin stories, and financial ROI models.</p>
+                    <ul class="arch-pillar-features">
+                        <li><span class="arch-feature-icon">✓</span> 1-Click Counter-PRDs with Out-of-Scope</li>
+                        <li><span class="arch-feature-icon">✓</span> Sprint-ready Jira Gherkin stories</li>
+                        <li><span class="arch-feature-icon">✓</span> Real-time Strategy Simulators</li>
+                    </ul>
                 </div>
+            </div>
+        `;
+    }
 
-                <div class="arch-pillar-grid">
-                    <div class="arch-pillar-box">
-                        <div>
-                            <div class="arch-pillar-header"><span class="arch-pillar-badge">Pillar 1</span><span class="arch-rubric-tag">Data Accuracy</span></div>
-                            <h3>🛡️ Grounding & Provenance</h3>
-                            <p class="arch-pillar-desc">Replaces speculative open-web scraping with deterministic AST unified diffs and SHA-256 provenance hashes.</p>
-                            <ul class="arch-pillar-features">
-                                <li><span class="arch-feature-icon">✓</span> Primary canonical source tiering</li>
-                                <li><span class="arch-feature-icon">✓</span> Zero-extrapolation LLM prompt</li>
-                                <li><span class="arch-feature-icon">✓</span> Type-safe Zod schema validation</li>
-                            </ul>
-                        </div>
-                    </div>
+    function renderBaselineModal() {
+        const c = document.getElementById('baseline-modal-body');
+        if (!c || !baselineData.core_offering) return;
 
-                    <div class="arch-pillar-box">
-                        <div>
-                            <div class="arch-pillar-header"><span class="arch-pillar-badge">Pillar 2</span><span class="arch-rubric-tag">Volume of Feeds</span></div>
-                            <h3>🎯 High-Signal Curation</h3>
-                            <p class="arch-pillar-desc">Filters out 50+ crawler noise to focus on high-impact strategic shifts classified across 5 core JTBD pillars.</p>
-                            <ul class="arch-pillar-features">
-                                <li><span class="arch-feature-icon">✓</span> 5 Strategic JTBD Pillars</li>
-                                <li><span class="arch-feature-icon">✓</span> Moat vs Parity vs Noise Triage</li>
-                                <li><span class="arch-feature-icon">✓</span> Dev Sprint Capacity Protection</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="arch-pillar-box">
-                        <div>
-                            <div class="arch-pillar-header"><span class="arch-pillar-badge">Pillar 3</span><span class="arch-rubric-tag">Completeness</span></div>
-                            <h3>⚡ Product Execution Bridge</h3>
-                            <p class="arch-pillar-desc">Transforms static intelligence feeds into sprint-ready PRDs, Jira Gherkin stories, and financial ROI models.</p>
-                            <ul class="arch-pillar-features">
-                                <li><span class="arch-feature-icon">✓</span> 1-Click Counter-PRDs with Out-of-Scope</li>
-                                <li><span class="arch-feature-icon">✓</span> Sprint-ready Jira Gherkin stories</li>
-                                <li><span class="arch-feature-icon">✓</span> Real-time Strategy Simulators</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+        c.innerHTML = `
+            <div class="spec-section">
+                <h4>1. Trade Republic Pricing Baseline</h4>
+                <p class="spec-text"><strong>Uninvested Cash Interest:</strong> ${escapeHtml(baselineData.core_offering.cash_interest)}</p>
+                <p class="spec-text"><strong>Custody Fee:</strong> ${escapeHtml(baselineData.core_offering.custody_fee)}</p>
+                <p class="spec-text"><strong>Order Execution:</strong> ${escapeHtml(baselineData.core_offering.order_cost)}</p>
+                <p class="spec-text"><strong>Automated Savings Plans:</strong> ${escapeHtml(baselineData.core_offering.savings_plans)}</p>
+            </div>
+            <div class="spec-section">
+                <h4>2. Card & Saveback Mechanics</h4>
+                <p class="spec-text"><strong>Monthly Card Fee:</strong> ${escapeHtml(baselineData.core_offering.card_monthly_fee)}</p>
+                <p class="spec-text"><strong>Card Saveback:</strong> ${escapeHtml(baselineData.core_offering.saveback_rate)}</p>
+            </div>
+            <div class="spec-section">
+                <h4>3. Grounding & Anti-Hallucination Policy</h4>
+                <p class="spec-text">All competitive signals synthesized by this system are deterministically validated against this baseline to ensure mathematically sound deltas without hallucinated claims.</p>
             </div>
         `;
     }
