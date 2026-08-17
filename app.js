@@ -1,4 +1,4 @@
-// Neobank Competitive Intelligence Dashboard Client — Head of Product Edition (Provenance & Grounding v2.0)
+// Neobank Competitive Intelligence Dashboard Client — Head of Product Edition (Provenance & Grounding v2.1)
 
 (function() {
     let signalsData = getFullSignalsDataset();
@@ -6,6 +6,12 @@
     let activeBriefFormat = 'summary';
     let isBriefCollapsed = false;
     let activeModalSignal = null;
+
+    // Simulator State
+    let simYieldRate = 4.00;
+    let simAvgCash = 5000;
+    let simBountyBonus = 100;
+    let simTransferSize = 15000;
 
     function bootstrap() {
         setupEventListeners();
@@ -71,6 +77,23 @@
                 slackAlertBtn.textContent = '✓ Alert Sent to ' + ch + '!';
                 slackAlertBtn.classList.add('sent');
                 setTimeout(() => { slackAlertBtn.textContent = '📢 Alert ' + ch; slackAlertBtn.classList.remove('sent'); }, 2500);
+            }
+        });
+
+        // Simulator Sliders
+        document.body.addEventListener('input', (e) => {
+            if (e.target.id === 'slider-yield-rate') {
+                simYieldRate = parseFloat(e.target.value);
+                renderSimulator();
+            } else if (e.target.id === 'slider-avg-cash') {
+                simAvgCash = parseInt(e.target.value, 10);
+                renderSimulator();
+            } else if (e.target.id === 'slider-bounty') {
+                simBountyBonus = parseInt(e.target.value, 10);
+                renderSimulator();
+            } else if (e.target.id === 'slider-transfer-size') {
+                simTransferSize = parseInt(e.target.value, 10);
+                renderSimulator();
             }
         });
 
@@ -209,7 +232,7 @@
     }
 
     function render() {
-        renderBaseline(); updateStats(); renderParityMatrix(); updateBriefContent(); renderTakeaways(); renderArchitecture();
+        renderBaseline(); updateStats(); renderParityMatrix(); updateBriefContent(); renderTakeaways(); renderSimulator(); renderArchitecture();
         var signalsContainer = document.getElementById('signals-container');
         var reviewContainer = document.getElementById('review-container');
         if (!signalsContainer || !reviewContainer) return;
@@ -268,6 +291,75 @@
         container.innerHTML = '<div class="takeaways-hero-header"><div><h2>⚡ Strategic Decision Engine</h2><p class="modal-subtitle">Autonomous strategic prioritization translating competitive shifts into squad playbooks</p></div><div class="takeaways-stats-row"><div class="takeaways-stat-chip">Active Playbooks: <strong>3 Live</strong></div><div class="takeaways-stat-chip">Target ROI: <strong>+€24M AUC</strong></div><div class="takeaways-stat-chip">Filtered Noise: <strong>1 Gimmick</strong></div></div></div><div class="takeaways-grid">' + takeaways.map(function(t) {
             return '<div class="takeaway-card '+t.cardClass+'"><div class="takeaway-header"><div class="takeaway-badge-row"><span class="takeaway-type-tag '+t.typeClass+'">'+t.type+'</span><span class="priority-chip '+t.priorityClass+'">'+t.priority+'</span><span class="squad-tag">'+t.squad+'</span></div></div><div class="takeaway-body"><div class="takeaway-col-left"><h3 class="takeaway-title">'+escapeHtml(t.title)+'</h3><div class="takeaway-context"><strong>Market Shift:</strong> '+escapeHtml(t.context)+'</div><div class="takeaway-playbook"><strong>Playbook:</strong><br>'+escapeHtml(t.playbook)+'</div></div><div class="takeaway-col-right"><div class="impact-projection-box"><span class="impact-projection-label">'+escapeHtml(t.impactLabel)+'</span><div class="impact-projection-value">'+escapeHtml(t.impactValue)+'</div></div></div></div><div class="takeaway-footer"><div class="takeaway-actions"><button class="btn-takeaway-action btn-spec" data-id="'+t.signalId+'">📝 Spec-It (Mini-PRD)</button><button class="btn-takeaway-action btn-jira" data-id="'+t.signalId+'">⚡ Sprint Jira Story</button></div><button class="btn-takeaway-action btn-slack-alert" data-channel="'+t.channel+'">📢 Alert '+t.channel+'</button></div></div>';
         }).join('') + '</div>';
+    }
+
+    function renderSimulator() {
+        var container = document.getElementById('simulator-container'); if (!container) return;
+        
+        // Calculation Model 1: Interest Rate Hike vs Saveback
+        var deltaBps = (simYieldRate - 3.75) * 100;
+        var estAccounts = 250000;
+        var annualCostDelta = (estAccounts * simAvgCash * ((simYieldRate - 3.75) / 100));
+        var retentionLift = Math.max(0, (simYieldRate - 3.75) * 6.5);
+        var costFormatted = annualCostDelta > 0 ? '+€' + (annualCostDelta / 1000000).toFixed(2) + 'M/yr' : '€0.00';
+        var isHikeBad = simYieldRate > 3.75;
+
+        // Calculation Model 2: Transfer Bounty vs Scalable
+        var assumedSwitchers = 3500;
+        var totalBountyCost = assumedSwitchers * simBountyBonus;
+        var totalAucAcquired = (assumedSwitchers * simTransferSize) / 1000000;
+        var annualRevenueEst = totalAucAcquired * 1000000 * 0.0035; // 35 bps custody/trading rev
+        var paybackMonths = ((totalBountyCost / annualRevenueEst) * 12).toFixed(1);
+
+        container.innerHTML = '<div class="simulator-card">' +
+            '<div class="simulator-header">' +
+                '<h2>🧮 What-If Strategy & Financial Scenario Simulator</h2>' +
+                '<p class="modal-subtitle">Real-time quantitative modeling for Head of Product decision-making</p>' +
+            '</div>' +
+            '<div class="simulator-grid">' +
+                '<!-- Model 1: Yield Elasticity -->' +
+                '<div class="sim-panel">' +
+                    '<h3>1. Uninvested Cash Yield vs Saveback Multiplier</h3>' +
+                    '<div class="sim-control-group">' +
+                        '<div class="sim-label-row"><span>Proposed Cash Interest Rate</span><span class="sim-val-display" id="disp-yield">' + simYieldRate.toFixed(2) + '% p.a.</span></div>' +
+                        '<input type="range" min="3.50" max="4.50" step="0.05" value="' + simYieldRate + '" class="sim-slider" id="slider-yield-rate">' +
+                    '</div>' +
+                    '<div class="sim-control-group">' +
+                        '<div class="sim-label-row"><span>Avg. Uninvested Cash per User</span><span class="sim-val-display" id="disp-cash">€' + simAvgCash.toLocaleString() + '</span></div>' +
+                        '<input type="range" min="1000" max="15000" step="500" value="' + simAvgCash + '" class="sim-slider" id="slider-avg-cash">' +
+                    '</div>' +
+                    '<div class="sim-output-grid">' +
+                        '<div class="sim-stat-box"><span class="sim-stat-num">' + costFormatted + '</span><span class="sim-stat-label">Net Interest Expense Δ</span></div>' +
+                        '<div class="sim-stat-box"><span class="sim-stat-num">+' + retentionLift.toFixed(1) + '%</span><span class="sim-stat-label">D30 Retention Lift</span></div>' +
+                    '</div>' +
+                    '<div class="sim-verdict-box">' +
+                        '<div class="sim-verdict-title">' + (isHikeBad ? '⚠️ Strategic Verdict: High-Cost / Low-ROI' : '✅ Strategic Verdict: Moat Optimized') + '</div>' +
+                        '<div class="sim-verdict-text">' + (isHikeBad ? 'Hiking yield above 3.75% costs ' + costFormatted + ' with diminishing retention elasticity. Better PM strategy: Deploy <strong>Payroll Saveback Multiplier (+0.5%)</strong> to drive primary banking lock-in at 60% lower cost.' : 'Current 3.75% yield baseline + 1% Saveback provides superior LTV/CAC efficiency without rate subsidies.') + '</div>' +
+                    '</div>' +
+                '</div>' +
+
+                '<!-- Model 2: Portfolio Transfer Bounty -->' +
+                '<div class="sim-panel">' +
+                    '<h3>2. Portfolio Poaching Defense vs Scalable €100 Bonus</h3>' +
+                    '<div class="sim-control-group">' +
+                        '<div class="sim-label-row"><span>Transfer Bonus Payout</span><span class="sim-val-display" id="disp-bounty">€' + simBountyBonus + '</span></div>' +
+                        '<input type="range" min="0" max="200" step="10" value="' + simBountyBonus + '" class="sim-slider" id="slider-bounty">' +
+                    '</div>' +
+                    '<div class="sim-control-group">' +
+                        '<div class="sim-label-row"><span>Avg Portfolio Size Transferred</span><span class="sim-val-display" id="disp-transfer">€' + simTransferSize.toLocaleString() + '</span></div>' +
+                        '<input type="range" min="5000" max="50000" step="2500" value="' + simTransferSize + '" class="sim-slider" id="slider-transfer-size">' +
+                    '</div>' +
+                    '<div class="sim-output-grid">' +
+                        '<div class="sim-stat-box"><span class="sim-stat-num">€' + totalAucAcquired.toFixed(1) + 'M</span><span class="sim-stat-label">Target AUC Protected</span></div>' +
+                        '<div class="sim-stat-box"><span class="sim-stat-num">' + paybackMonths + ' mo</span><span class="sim-stat-label">CAC Payback Window</span></div>' +
+                    '</div>' +
+                    '<div class="sim-verdict-box">' +
+                        '<div class="sim-verdict-title">🎯 Executive Recommendation</div>' +
+                        '<div class="sim-verdict-text">Payback period is <strong>' + paybackMonths + ' months</strong> on €' + totalAucAcquired.toFixed(1) + 'M AUC. Rather than direct cash bounties, trigger in-app fee savings calculators for accounts >€10k to retain custody organically.</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
     }
 
     function renderArchitecture() {
