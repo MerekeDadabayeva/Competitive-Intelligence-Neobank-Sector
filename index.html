@@ -33,30 +33,28 @@
         </div>
     </header>
 
+    <!-- Stakeholder Persona Switcher Bar -->
+    <div class="persona-banner">
+        <div class="persona-banner-inner">
+            <div class="persona-switch-left">
+                <span class="persona-switch-label">Stakeholder Lens:</span>
+                <div class="persona-btn-group">
+                    <button class="persona-btn active" data-persona="pm">⚡ Product Lead</button>
+                    <button class="persona-btn" data-persona="exec">👔 C-Suite Executive</button>
+                    <button class="persona-btn" data-persona="eng">🛠️ Engineering Squad</button>
+                </div>
+            </div>
+            <div class="persona-switch-desc" id="persona-switch-desc">
+                <strong>Product Lead Lens:</strong> Balanced strategic radar with competitor deltas, tactical counter-moves, and PRDs.
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="app-container">
-        <!-- Top Executive KPI Summary Strip -->
-        <section class="kpi-strip">
-            <div class="kpi-card">
-                <div class="kpi-label">Yield Spread Moat</div>
-                <div class="kpi-val text-emerald">+75 bps</div>
-                <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Protected Custody AUC</div>
-                <div class="kpi-val text-blue">€24.2M</div>
-                <div class="kpi-sub">Scalable €100 transfer poaching defense</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Onboarding Velocity Lead</div>
-                <div class="kpi-val text-indigo">3 Min</div>
-                <div class="kpi-sub">vs N26 4.3★ KYC loops (v12.4)</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">Sprint Capacity Protected</div>
-                <div class="kpi-val text-purple">+2 Sprints</div>
-                <div class="kpi-sub">Revolut Ultra €45/mo noise filtered</div>
-            </div>
+        <!-- Top KPI Summary Strip -->
+        <section class="kpi-strip" id="kpi-strip">
+            <!-- Dynamic KPIs injected by JS based on persona -->
         </section>
 
         <!-- Navigation Tabs -->
