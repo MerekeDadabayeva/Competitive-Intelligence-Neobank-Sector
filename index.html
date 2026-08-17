@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- 1. Clean Top Navigation Header -->
+    <!-- 1. Header -->
     <header class="app-header">
         <div class="header-branding">
             <div class="logo-mark">TR</div>
             <div class="header-titles">
                 <div class="title-row">
                     <h1>Competitive Intelligence Radar</h1>
-                    <span class="version-badge">Live Market Engine</span>
+                    <span class="version-badge">Live Intelligence Feed</span>
                 </div>
                 <span class="header-subtitle">Trade Republic vs European Neobanks · Autonomous Provenance & Execution Bridge</span>
             </div>
@@ -38,7 +38,7 @@
         </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- Main Workspace Container -->
     <div class="app-container">
         <!-- Top Executive KPI Metric Strip -->
         <section class="kpi-strip">
@@ -64,43 +64,50 @@
             </div>
         </section>
 
-        <!-- VIEW 1: Live Radar (Master-Detail Feed) -->
+        <!-- VIEW 1: Live Radar (Clean 2-Column Intelligence Cards) -->
         <section class="view-panel active" id="view-radar">
-            <!-- Filter Toolbar -->
-            <div class="radar-filter-bar">
-                <div class="filter-chip-group">
-                    <span class="filter-label">Competitor:</span>
-                    <button class="filter-chip active" data-filter-type="competitor" data-filter-val="ALL">All (8)</button>
-                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="N26">N26</button>
-                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="Scalable Capital">Scalable</button>
-                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="Revolut">Revolut</button>
-                    <button class="filter-chip" data-filter-type="competitor" data-filter-val="Bitpanda">Bitpanda</button>
+            <!-- Strategic Filter Toolbar -->
+            <div class="filter-dashboard-bar">
+                <!-- Row 1: Strategic JTBD Pillars -->
+                <div class="filter-row">
+                    <span class="filter-row-label">Strategic Pillar:</span>
+                    <div class="filter-chips">
+                        <button class="pillar-chip active" data-filter-type="pillar" data-filter-val="ALL">All Strategic Pillars (5)</button>
+                        <button class="pillar-chip" data-filter-type="pillar" data-filter-val="Value Realization">💎 Value Realization</button>
+                        <button class="pillar-chip" data-filter-type="pillar" data-filter-val="Conversion / Monetization Hooks">🎣 Monetization Hooks</button>
+                        <button class="pillar-chip" data-filter-type="pillar" data-filter-val="Onboarding Friction">🚪 Onboarding Friction</button>
+                        <button class="pillar-chip" data-filter-type="pillar" data-filter-val="Feature Bloat">🎈 Feature Bloat Guardrail</button>
+                    </div>
                 </div>
 
-                <div class="filter-chip-group">
-                    <span class="filter-label">Impact:</span>
-                    <button class="filter-chip active" data-filter-type="impact" data-filter-val="ALL">All Moves</button>
-                    <button class="filter-chip" data-filter-type="impact" data-filter-val="Differentiator (Moat)">🏰 Moat Leads</button>
-                    <button class="filter-chip" data-filter-type="impact" data-filter-val="Defensive Need (Parity)">🛡️ Defensive</button>
-                    <button class="filter-chip" data-filter-type="impact" data-filter-val="Noise (Low ROI)">🔇 Filtered Noise</button>
-                </div>
+                <!-- Row 2: Competitor & Triage Chips + Search -->
+                <div class="filter-row filter-row-sub">
+                    <div class="filter-chips">
+                        <span class="filter-row-label">Competitor:</span>
+                        <button class="filter-chip active" data-filter-type="competitor" data-filter-val="ALL">All (4)</button>
+                        <button class="filter-chip" data-filter-type="competitor" data-filter-val="N26">N26</button>
+                        <button class="filter-chip" data-filter-type="competitor" data-filter-val="Scalable Capital">Scalable</button>
+                        <button class="filter-chip" data-filter-type="competitor" data-filter-val="Revolut">Revolut</button>
+                        <button class="filter-chip" data-filter-type="competitor" data-filter-val="Bitpanda">Bitpanda</button>
+                    </div>
 
-                <div class="search-box-wrapper">
-                    <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, terms..." class="search-input">
+                    <div class="filter-chips">
+                        <span class="filter-row-label">Triage:</span>
+                        <button class="filter-chip active" data-filter-type="impact" data-filter-val="ALL">All Moves</button>
+                        <button class="filter-chip" data-filter-type="impact" data-filter-val="Differentiator (Moat)">🏰 Moat Leads</button>
+                        <button class="filter-chip" data-filter-type="impact" data-filter-val="Defensive Need (Parity)">🛡️ Defensive</button>
+                        <button class="filter-chip" data-filter-type="impact" data-filter-val="Noise (Low ROI)">🔇 Noise</button>
+                    </div>
+
+                    <div class="search-box-wrapper">
+                        <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, keywords..." class="search-input">
+                    </div>
                 </div>
             </div>
 
-            <!-- Master-Detail Split Pane -->
-            <div class="master-detail-container">
-                <!-- Left Pane: Signal Feed List -->
-                <div class="master-list-pane" id="master-signal-list">
-                    <!-- Dynamic Signal List Items Injected by JS -->
-                </div>
-
-                <!-- Right Pane: Sticky Inspector Drawer -->
-                <div class="detail-inspector-pane" id="detail-inspector-pane">
-                    <!-- Dynamic Inspector Injected by JS based on selected signal -->
-                </div>
+            <!-- Clean Intelligence Cards 2-Column Responsive Grid -->
+            <div class="intel-cards-grid" id="intel-cards-grid">
+                <!-- Dynamically populated by app.js -->
             </div>
         </section>
 
@@ -160,6 +167,92 @@
                 <div id="integrity-content-area">Loading integrity architecture...</div>
             </div>
         </section>
+    </div>
+
+    <!-- Interactive Slide-Over 1-Page Spec Drawer -->
+    <div class="spec-drawer-backdrop" id="spec-drawer-backdrop">
+        <div class="spec-drawer-panel" id="spec-drawer-panel">
+            <div class="drawer-header">
+                <div class="drawer-header-meta">
+                    <span class="source-reliability-pill" id="drawer-source-pill">🟢 Verified Primary Source</span>
+                    <span class="impact-badge" id="drawer-impact-badge">[MOAT: DIFFERENTIATOR]</span>
+                </div>
+                <h2 id="drawer-title">Signal Title</h2>
+                <p id="drawer-subtitle" class="drawer-subtitle">Category · Urgency</p>
+                <button class="drawer-close-btn" id="close-drawer-btn">&times;</button>
+            </div>
+
+            <div class="drawer-body">
+                <!-- 1. Our Response (1-Page Spec) -->
+                <div class="drawer-section">
+                    <div class="section-title-row">
+                        <h3>1. Our Tactical Response (1-Page Spec)</h3>
+                        <span class="section-pill">Product Strategy</span>
+                    </div>
+                    <div class="spec-block">
+                        <div class="spec-subhead">Problem Statement & Competitive Dynamic</div>
+                        <p id="drawer-problem-stmt" class="spec-text"></p>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Proposed MVP Counter-Move</div>
+                        <p id="drawer-proposed-mvp" class="spec-text-highlight"></p>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Target Business Metrics</div>
+                        <ul id="drawer-target-metrics" class="spec-bullet-list"></ul>
+                    </div>
+                </div>
+
+                <!-- 2. Strict Out-of-Scope Limits -->
+                <div class="drawer-section out-of-scope-card">
+                    <div class="section-title-row">
+                        <h3 class="text-rose">2. Strict Out-of-Scope Limits (Feature Creep Discipline)</h3>
+                        <span class="section-pill pill-amber">Engineering Guardrail</span>
+                    </div>
+                    <ul id="drawer-out-of-scope" class="spec-bullet-list out-of-scope-bullets"></ul>
+                </div>
+
+                <!-- 3. Sprint Backlog Ticket (Gherkin BDD) -->
+                <div class="drawer-section">
+                    <div class="section-title-row">
+                        <h3>3. Sprint Backlog Ticket (Gherkin BDD)</h3>
+                        <span class="section-pill pill-indigo">Sprint Ready</span>
+                    </div>
+                    <div class="spec-block">
+                        <div class="spec-subhead">Epic Title & User Story</div>
+                        <div id="drawer-jira-epic" class="spec-code-title"></div>
+                        <p id="drawer-jira-story" class="spec-text" style="margin-top:6px;"></p>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Gherkin Scenarios (Given / When / Then)</div>
+                        <pre id="drawer-jira-gherkin" class="gherkin-code-block"></pre>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Definition of Done & Latency SLO (&lt; 200ms p95)</div>
+                        <ul id="drawer-jira-ac" class="spec-bullet-list"></ul>
+                    </div>
+                </div>
+
+                <!-- 4. Verified Primary Diff & Provenance -->
+                <div class="drawer-section">
+                    <div class="section-title-row">
+                        <h3>4. Verified Primary Diff & Grounding</h3>
+                        <span class="section-pill">Zero Hallucinations</span>
+                    </div>
+                    <div class="spec-block">
+                        <div class="diff-view-box" id="drawer-diff-box"></div>
+                        <div class="provenance-meta-row">
+                            <span id="drawer-hash" class="hash-tag"></span>
+                            <a id="drawer-primary-link" href="#" target="_blank" class="primary-link-btn">Verify Primary Source ↗</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-footer">
+                <div class="drawer-footer-actions">
+                    <button class="btn-primary" id="btn-copy-spec">📋 Copy 1-Page Spec</button>
+                    <button class="btn-secondary" id="btn-copy-jira">⚡ Copy Jira Story</button>
+                    <button class="btn-slack" id="btn-drawer-slack">📢 Dispatch to Squad</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Trade Republic Baseline Modal -->
