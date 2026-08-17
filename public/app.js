@@ -8,6 +8,7 @@
     let selectedCompetitor = 'ALL';
     let selectedImpact = 'ALL';
     let searchQuery = '';
+    let activePersona = 'pm'; // 'pm' | 'exec' | 'eng'
 
     // Simulator State
     let simYieldRate = 4.00;
@@ -45,6 +46,28 @@
     }
 
     function setupEventListeners() {
+        // Stakeholder Persona Switcher
+        document.querySelectorAll('.persona-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const persona = e.currentTarget.dataset.persona;
+                document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                activePersona = persona;
+
+                const descEl = document.getElementById('persona-switch-desc');
+                if (descEl) {
+                    if (persona === 'exec') {
+                        descEl.innerHTML = '<strong>C-Suite Executive Lens:</strong> Financial materiality, net interest margin (NIM) exposure, AUC protection & board decisions.';
+                    } else if (persona === 'eng') {
+                        descEl.innerHTML = '<strong>Engineering Squad Lens:</strong> Technical deltas, story point sizing, Gherkin BDD user stories, latency SLOs & roadmap protection.';
+                    } else {
+                        descEl.innerHTML = '<strong>Product Lead Lens:</strong> Balanced strategic radar with competitor deltas, tactical counter-moves, and PRDs.';
+                    }
+                }
+                render();
+            });
+        });
+
         // Tab Navigation
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -351,12 +374,90 @@
     }
 
     function render() {
+        renderKpis();
         renderSignalList();
         renderParityMatrix();
         updateBriefContent();
         renderTakeaways();
         renderSimulator();
         renderArchitecture();
+    }
+
+    function renderKpis() {
+        const kpiStrip = document.getElementById('kpi-strip');
+        if (!kpiStrip) return;
+
+        if (activePersona === 'exec') {
+            kpiStrip.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Net Yield Margin Moat</div>
+                    <div class="kpi-val text-emerald">+75 bps Lead</div>
+                    <div class="kpi-sub">TR 3.75% vs N26 3.00% (€0 fee)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">High-Tier AUC at Risk</div>
+                    <div class="kpi-val text-blue">€24.2M</div>
+                    <div class="kpi-sub">Scalable €100 poaching bonus defense</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Paid Acquisition Arbitrage</div>
+                    <div class="kpi-val text-indigo">+22% CAC Gain</div>
+                    <div class="kpi-sub">Capitalizing on N26 KYC instability</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Roadmap Focus Protection</div>
+                    <div class="kpi-val text-purple">100% Core Focus</div>
+                    <div class="kpi-sub">Revolut Ultra €45/mo vanity tier rejected</div>
+                </div>
+            `;
+        } else if (activePersona === 'eng') {
+            kpiStrip.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Dev Sprints Protected</div>
+                    <div class="kpi-val text-purple">+2 Sprints</div>
+                    <div class="kpi-sub">0 SP wasted on luxury lifestyle gimmicks</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Sprint Backlog Ready</div>
+                    <div class="kpi-val text-blue">6 Epics</div>
+                    <div class="kpi-sub">Structured Gherkin BDD user stories</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Latency SLO Target</div>
+                    <div class="kpi-val text-emerald">&lt; 200ms p95</div>
+                    <div class="kpi-sub">Zero performance regression constraint</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Ingestion Grounding</div>
+                    <div class="kpi-val text-indigo">100% Verified</div>
+                    <div class="kpi-sub">SHA-256 AST unified diff hashes</div>
+                </div>
+            `;
+        } else {
+            // PM View
+            kpiStrip.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Yield Spread Moat</div>
+                    <div class="kpi-val text-emerald">+75 bps</div>
+                    <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Protected Custody AUC</div>
+                    <div class="kpi-val text-blue">€24.2M</div>
+                    <div class="kpi-sub">Scalable €100 transfer poaching defense</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Onboarding Velocity Lead</div>
+                    <div class="kpi-val text-indigo">3 Min</div>
+                    <div class="kpi-sub">vs N26 4.3★ KYC loops (v12.4)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Sprint Capacity Protected</div>
+                    <div class="kpi-val text-purple">+2 Sprints</div>
+                    <div class="kpi-sub">Revolut Ultra €45/mo noise filtered</div>
+                </div>
+            `;
+        }
     }
 
     function renderSignalList() {
@@ -415,7 +516,111 @@
             const pmAction = s.tr_delta ? s.tr_delta.pm_action : (s.mini_prd ? s.mini_prd.proposed_mvp_response : 'Review competitive move');
             const targetMetric = s.tr_delta ? s.tr_delta.target_metric : (s.mini_prd && s.mini_prd.target_metrics ? s.mini_prd.target_metrics[0] : '🎯 Target KPI');
             const slackChannel = s.category === 'pricing' ? '#pricing-committee' : s.category === 'marketing_promo' ? '#growth-squad' : '#product-core';
+            const storyPoints = s.dev_sp || '3 SP (1 Sprint)';
+            const outOfScope = s.tr_delta ? s.tr_delta.out_of_scope : (s.mini_prd && s.mini_prd.explicit_out_of_scope ? s.mini_prd.explicit_out_of_scope[0] : 'Do NOT alter core pricing');
 
+            // PERSONA 1: C-SUITE EXECUTIVE VIEW
+            if (activePersona === 'exec') {
+                return `
+                    <div class="signal-clean-card">
+                        <div class="card-top-meta">
+                            <div class="card-tags-left">
+                                <span class="badge badge-${compClass}">${s.competitor}</span>
+                                <span class="category-tag">${categoryDisplay}</span>
+                                <span class="moat-tag ${moatClass}">${moatLabel}</span>
+                            </div>
+                            <div class="card-meta-right">
+                                <span>🕒 Verified Today</span>
+                                <span class="source-provenance-tag">· Board Impact High</span>
+                            </div>
+                        </div>
+
+                        <div class="card-headline">${escapeHtml(s.change_summary || '')}</div>
+
+                        <div class="card-delta-box ${boxAccent}">
+                            <div class="delta-col">
+                                <span class="delta-label">Executive & Margin Exposure</span>
+                                <span class="delta-text">${escapeHtml(deltaImp)}</span>
+                            </div>
+                            <div class="delta-col">
+                                <span class="delta-label">CPO / Board Recommendation</span>
+                                <span class="delta-action-text">${escapeHtml(pmAction)}</span>
+                            </div>
+                            <div class="delta-kpi-badge">${escapeHtml(targetMetric)}</div>
+                        </div>
+
+                        <div class="card-bottom-actions">
+                            <div class="actions-left">
+                                <button class="btn-card-primary btn-open-signal-modal" data-id="${s.id}" data-default-tab="prd">
+                                    📝 Read 1-Page PRD
+                                </button>
+                                <button class="btn-card-secondary" onclick="document.querySelector('.tab-btn[data-tab=simulator]').click()">
+                                    🧮 Model What-If in Simulator
+                                </button>
+                            </div>
+                            <button class="btn-slack-alert" data-channel="#c-suite-intel">
+                                📢 Send Executive Briefing
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // PERSONA 2: ENGINEERING SQUAD VIEW
+            if (activePersona === 'eng') {
+                return `
+                    <div class="signal-clean-card">
+                        <div class="card-top-meta">
+                            <div class="card-tags-left">
+                                <span class="badge badge-${compClass}">${s.competitor}</span>
+                                <span class="sp-tag">⚡ ${escapeHtml(storyPoints)}</span>
+                                ${s.friction_target ? `<span class="friction-tag">🎯 ${escapeHtml(s.friction_target)}</span>` : ''}
+                                <span class="slo-tag">⚡ Latency p95 &lt; 200ms</span>
+                            </div>
+                            <div class="card-meta-right">
+                                <span class="source-provenance-tag">SHA-256 Verified</span>
+                            </div>
+                        </div>
+
+                        <div class="card-headline">${escapeHtml(s.change_summary || '')}</div>
+
+                        <div class="card-delta-box ${boxAccent}">
+                            <div class="delta-col">
+                                <span class="delta-label">Architectural / Technical Delta</span>
+                                <span class="delta-text">${escapeHtml(deltaImp)}</span>
+                            </div>
+                            <div class="delta-col">
+                                <span class="delta-label">Explicit Out-of-Scope (Roadmap Guardrail)</span>
+                                <span class="delta-action-text text-rose" style="color:#b91c1c;">❌ ${escapeHtml(outOfScope)}</span>
+                            </div>
+                            <div class="delta-kpi-badge">⚡ Sprint Ready</div>
+                        </div>
+
+                        <div class="card-inline-diff">
+                            <div class="diff-content">${formatDiff(s.diff_snippet)}</div>
+                        </div>
+
+                        <div class="card-bottom-actions">
+                            <div class="actions-left">
+                                <button class="btn-card-primary btn-open-signal-modal" data-id="${s.id}" data-default-tab="jira">
+                                    ⚡ Copy Jira Gherkin
+                                </button>
+                                <button class="btn-card-secondary btn-toggle-inline-diff">
+                                    🔍 AST Unified Diff
+                                </button>
+                                <button class="btn-card-secondary btn-open-signal-modal" data-id="${s.id}" data-default-tab="provenance">
+                                    🛡️ Ingestion Payload
+                                </button>
+                            </div>
+                            <button class="btn-slack-alert" data-channel="${slackChannel}">
+                                🚀 Dispatch to ${slackChannel}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // PERSONA 3: PRODUCT LEAD VIEW (DEFAULT)
             return `
                 <div class="signal-clean-card">
                     <div class="card-top-meta">
