@@ -46,26 +46,47 @@
     }
 
     function setupEventListeners() {
-        // 1. Header Navigation Tabs (Radar | Brief | Integrity)
-        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        // 1. Sidebar Navigation Tabs (Radar | Brief | Integrity)
+        document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const targetTab = e.currentTarget.dataset.tab;
-                document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
 
                 e.currentTarget.classList.add('active');
                 const targetPanel = document.getElementById('view-' + targetTab);
                 if (targetPanel) targetPanel.classList.add('active');
+
+                // Update View Title in Topbar
+                const titleEl = document.getElementById('active-view-title');
+                const subEl = document.querySelector('.topbar-subtitle');
+                if (targetTab === 'radar') {
+                    if (titleEl) titleEl.textContent = 'Live Intelligence Radar';
+                    if (subEl) subEl.textContent = 'Autonomous Competitor Delta Synthesis vs European Neobanks';
+                } else if (targetTab === 'brief') {
+                    if (titleEl) titleEl.textContent = 'Weekly Executive Brief & Strategy';
+                    if (subEl) subEl.textContent = 'Synthesized CPO Memo, Moat Parity Matrix & What-If Simulator';
+                } else if (targetTab === 'integrity') {
+                    if (titleEl) titleEl.textContent = 'Data Integrity & Pipeline Architecture';
+                    if (subEl) subEl.textContent = 'Zero-Extrapolation AST Diff Extraction & SHA-256 Provenance';
+                }
             });
         });
 
-        // 2. Strategic Pillar Filter Chips
-        document.querySelectorAll('.pillar-chip').forEach(chip => {
-            chip.addEventListener('click', (e) => {
-                const val = e.currentTarget.dataset.filterVal;
-                document.querySelectorAll('.pillar-chip').forEach(c => c.classList.remove('active'));
+        // 2. Sidebar Strategic Pillar Filter Buttons
+        document.querySelectorAll('.sidebar-pillar-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = e.currentTarget.dataset.pillar;
+                document.querySelectorAll('.sidebar-pillar-btn').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 selectedPillar = val;
+                
+                // If not currently on Radar view, switch to Radar
+                const radarNavBtn = document.querySelector('.sidebar-nav-btn[data-tab="radar"]');
+                if (radarNavBtn && !radarNavBtn.classList.contains('active')) {
+                    radarNavBtn.click();
+                }
+
                 renderCardsGrid();
             });
         });
@@ -355,6 +376,10 @@
                 return combined.includes(searchQuery);
             });
         }
+
+        // Update sidebar count badge
+        const sidebarCount = document.getElementById('sidebar-feed-count');
+        if (sidebarCount) sidebarCount.textContent = filtered.length;
 
         if (!filtered.length) {
             container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:40px;text-align:center;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">No competitor signals match your active filters.</div>`;
