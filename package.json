@@ -11,6 +11,7 @@
     "triage": "tsx src/cli.ts triage",
     "digest": "tsx src/cli.ts digest",
     "validate:fixtures": "tsx tests/validate_fixtures.ts",
+    "build": "mkdir -p docs && cp -r public/* docs/ && cp public/.nojekyll docs/",
     "dev": "tsx src/server.ts"
   },
   "dependencies": {

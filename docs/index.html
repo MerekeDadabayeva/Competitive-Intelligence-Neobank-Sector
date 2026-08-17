@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Republic · Competitive Intelligence Radar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- 1. Left Sidebar Navigation (Competitors Front & Center) -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="logo-mark">TR</div>
+                    <div class="brand-text">
+                        <span class="brand-title">Trade Republic</span>
+                        <span class="brand-subtitle">Competitive Radar</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-live-status">
+                    <span class="live-pulse-dot"></span>
+                    <span class="live-status-text">8 Live Feeds Verified</span>
+                </div>
+
+                <!-- Section 1: Competitors (Primary Navigation) -->
+                <div class="sidebar-nav-group">
+                    <div class="sidebar-group-title">Competitors</div>
+                    <button class="sidebar-competitor-btn active" data-competitor="ALL">
+                        <span class="comp-icon-dot dot-all">🌐</span>
+                        <span class="comp-nav-name">All Competitors</span>
+                        <span class="comp-count-pill" id="count-all">8</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="N26">
+                        <span class="comp-icon-dot dot-n26">🟢</span>
+                        <span class="comp-nav-name">N26</span>
+                        <span class="comp-count-pill" id="count-n26">2</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="Scalable Capital">
+                        <span class="comp-icon-dot dot-scalable">🔴</span>
+                        <span class="comp-nav-name">Scalable Capital</span>
+                        <span class="comp-count-pill" id="count-scalable">2</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="Revolut">
+                        <span class="comp-icon-dot dot-revolut">⚫</span>
+                        <span class="comp-nav-name">Revolut</span>
+                        <span class="comp-count-pill" id="count-revolut">2</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="Bitpanda">
+                        <span class="comp-icon-dot dot-bitpanda">🔵</span>
+                        <span class="comp-nav-name">Bitpanda</span>
+                        <span class="comp-count-pill" id="count-bitpanda">2</span>
+                    </button>
+                </div>
+
+                <!-- Section 2: Executive Views & Tools -->
+                <div class="sidebar-nav-group">
+                    <div class="sidebar-group-title">Reports & Tools</div>
+                    <button class="sidebar-view-btn active" data-tab="radar">
+                        <span class="nav-icon">📡</span>
+                        <span class="nav-label">Live Signal Feed</span>
+                    </button>
+                    <button class="sidebar-view-btn" data-tab="brief">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Executive Brief & Matrix</span>
+                    </button>
+                    <button class="sidebar-view-btn" data-tab="integrity">
+                        <span class="nav-icon">🛡️</span>
+                        <span class="nav-label">Data Integrity & AST Pipeline</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <button class="btn-baseline-sidebar" id="open-baseline-btn">
+                    <span>⚙️ TR Core Baseline</span>
+                </button>
+                <div class="sidebar-env-badge">v4.7 · Production Rigor</div>
+            </div>
+        </aside>
+
+        <!-- 2. Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar with Search and Dynamic Title -->
+            <header class="content-topbar">
+                <div class="topbar-title-area">
+                    <div class="title-with-badge">
+                        <h1 id="active-view-title">All Competitors</h1>
+                        <span class="topbar-filter-badge" id="active-competitor-badge">All 4 Neobanks</span>
+                    </div>
+                    <span class="topbar-subtitle" id="active-view-subtitle">Autonomous Competitor Delta Synthesis vs Trade Republic Baseline</span>
+                </div>
+                <div class="topbar-search-area">
+                    <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, terms..." class="search-input">
+                </div>
+            </header>
+
+            <div class="content-scroll-container">
+                <!-- Top Executive KPI Metric Strip -->
+                <section class="kpi-strip" id="kpi-strip-container">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Yield Spread Moat</div>
+                        <div class="kpi-val text-emerald">+75 bps Lead</div>
+                        <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Protected Custody AUC</div>
+                        <div class="kpi-val text-blue">€24.2M</div>
+                        <div class="kpi-sub">Scalable €100 poaching defense</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Acquisition Velocity Lead</div>
+                        <div class="kpi-val text-indigo">3 Min KYC</div>
+                        <div class="kpi-sub">vs N26 4.3★ verification loop churn</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Sprint Capacity Protected</div>
+                        <div class="kpi-val text-purple">+2 Sprints</div>
+                        <div class="kpi-sub">Revolut Ultra €45/mo noise rejected</div>
+                    </div>
+                </section>
+
+                <!-- VIEW 1: Live Signal Feed -->
+                <section class="view-panel active" id="view-radar">
+                    <!-- Quick Filter Bar (Triage + Strategic Pillars) -->
+                    <div class="quick-filter-bar">
+                        <div class="filter-chips">
+                            <span class="filter-row-label">Triage:</span>
+                            <button class="filter-chip active" data-filter-type="impact" data-filter-val="ALL">All Moves</button>
+                            <button class="filter-chip" data-filter-type="impact" data-filter-val="Differentiator (Moat)">🏰 Moat Leads</button>
+                            <button class="filter-chip" data-filter-type="impact" data-filter-val="Defensive Need (Parity)">🛡️ Defensive</button>
+                            <button class="filter-chip" data-filter-type="impact" data-filter-val="Noise (Low ROI)">🔇 Noise</button>
+                        </div>
+
+                        <div class="filter-chips">
+                            <span class="filter-row-label">Pillar:</span>
+                            <button class="filter-chip active" data-filter-type="pillar" data-filter-val="ALL">All Pillars</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Value Realization">💎 Value</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Conversion / Monetization Hooks">🎣 Monetization</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Onboarding Friction">🚪 Onboarding</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Feature Bloat">🎈 Bloat Guard</button>
+                        </div>
+                    </div>
+
+                    <!-- Clean Intelligence Cards 2-Column Responsive Grid -->
+                    <div class="intel-cards-grid" id="intel-cards-grid">
+                        <!-- Dynamically populated by app.js -->
+                    </div>
+                </section>
+
+                <!-- VIEW 2: Executive Brief & Strategy (Brief + Parity Matrix + Simulator) -->
+                <section class="view-panel" id="view-brief">
+                    <!-- Weekly Executive Brief Card -->
+                    <div class="content-panel-card">
+                        <div class="panel-header-row">
+                            <div>
+                                <h2>Weekly Executive Intelligence Brief</h2>
+                                <p class="panel-subtitle">Synthesized strategic brief for Head of Product & Executive Committee</p>
+                            </div>
+                            <div class="brief-controls">
+                                <div class="format-toggle" id="brief-format-toggle">
+                                    <button class="format-btn active" data-format="summary">Visual Brief</button>
+                                    <button class="format-btn" data-format="slack">Slack Format</button>
+                                    <button class="format-btn" data-format="email">Email Format</button>
+                                </div>
+                                <button class="btn-primary" id="copy-brief-btn">📋 Copy Brief</button>
+                            </div>
+                        </div>
+                        <div id="brief-content-area" class="panel-body-area">Loading brief...</div>
+                    </div>
+
+                    <!-- Competitive Moat & Parity Radar Table -->
+                    <div class="content-panel-card" style="margin-top:20px;">
+                        <div class="panel-header-row">
+                            <div>
+                                <h2>Competitive Parity & Moat Radar</h2>
+                                <p class="panel-subtitle">Direct strategic delta mapping against Trade Republic's baseline</p>
+                            </div>
+                        </div>
+                        <div class="parity-table-container" id="parity-table-area">Loading table...</div>
+                    </div>
+
+                    <!-- What-If Strategy Simulator -->
+                    <div class="content-panel-card" style="margin-top:20px;">
+                        <div class="panel-header-row">
+                            <div>
+                                <h2>🧮 What-If Strategic Decision Simulator</h2>
+                                <p class="panel-subtitle">Model yield spread sensitivity, transfer bounty economics, and AUC protection thresholds</p>
+                            </div>
+                        </div>
+                        <div id="simulator-content-area">Loading simulator...</div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: Data Integrity & System Architecture -->
+                <section class="view-panel" id="view-integrity">
+                    <div class="content-panel-card">
+                        <div class="panel-header-row">
+                            <div>
+                                <h2>🛡️ Data Integrity & Zero-Extrapolation Pipeline</h2>
+                                <p class="panel-subtitle">Deterministic AST unified diff extraction, type-safe Zod validation, and cryptographic SHA-256 provenance</p>
+                            </div>
+                        </div>
+                        <div id="integrity-content-area">Loading integrity architecture...</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Interactive Slide-Over 1-Page Spec Drawer -->
+    <div class="spec-drawer-backdrop" id="spec-drawer-backdrop">
+        <div class="spec-drawer-panel" id="spec-drawer-panel">
+            <div class="drawer-header">
+                <div class="drawer-header-meta">
+                    <span class="source-reliability-pill" id="drawer-source-pill">🟢 Verified Primary Source</span>
+                    <span class="impact-badge" id="drawer-impact-badge">[MOAT: DIFFERENTIATOR]</span>
+                </div>
+                <h2 id="drawer-title">Signal Title</h2>
+                <p id="drawer-subtitle" class="drawer-subtitle">Category · Urgency</p>
+                <button class="drawer-close-btn" id="close-drawer-btn">&times;</button>
+            </div>
+
+            <div class="drawer-body">
+                <!-- 1. Our Response (1-Page Spec) -->
+                <div class="drawer-section">
+                    <div class="section-title-row">
+                        <h3>1. Our Tactical Response (1-Page Spec)</h3>
+                        <span class="section-pill">Product Strategy</span>
+                    </div>
+                    <div class="spec-block">
+                        <div class="spec-subhead">Problem Statement & Competitive Dynamic</div>
+                        <p id="drawer-problem-stmt" class="spec-text"></p>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Proposed MVP Counter-Move</div>
+                        <p id="drawer-proposed-mvp" class="spec-text-highlight"></p>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Target Business Metrics</div>
+                        <ul id="drawer-target-metrics" class="spec-bullet-list"></ul>
+                    </div>
+                </div>
+
+                <!-- 2. Strict Out-of-Scope Limits -->
+                <div class="drawer-section out-of-scope-card">
+                    <div class="section-title-row">
+                        <h3 class="text-rose">2. Strict Out-of-Scope Limits (Feature Creep Discipline)</h3>
+                        <span class="section-pill pill-amber">Engineering Guardrail</span>
+                    </div>
+                    <ul id="drawer-out-of-scope" class="spec-bullet-list out-of-scope-bullets"></ul>
+                </div>
+
+                <!-- 3. Sprint Backlog Ticket (Gherkin BDD) -->
+                <div class="drawer-section">
+                    <div class="section-title-row">
+                        <h3>3. Sprint Backlog Ticket (Gherkin BDD)</h3>
+                        <span class="section-pill pill-indigo">Sprint Ready</span>
+                    </div>
+                    <div class="spec-block">
+                        <div class="spec-subhead">Epic Title & User Story</div>
+                        <div id="drawer-jira-epic" class="spec-code-title"></div>
+                        <p id="drawer-jira-story" class="spec-text" style="margin-top:6px;"></p>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Gherkin Scenarios (Given / When / Then)</div>
+                        <pre id="drawer-jira-gherkin" class="gherkin-code-block"></pre>
+                        
+                        <div class="spec-subhead" style="margin-top:12px;">Definition of Done & Latency SLO (&lt; 200ms p95)</div>
+                        <ul id="drawer-jira-ac" class="spec-bullet-list"></ul>
+                    </div>
+                </div>
+
+                <!-- 4. Verified Primary Diff & Provenance -->
+                <div class="drawer-section" id="drawer-section-provenance">
+                    <div class="section-title-row">
+                        <h3>4. Verified Primary Source & AST Diff</h3>
+                        <span class="section-pill">Zero Hallucinations</span>
+                    </div>
+                    <div class="spec-block">
+                        <div class="spec-subhead">Canonical Source Document</div>
+                        <div id="drawer-source-doc" class="spec-text" style="font-weight:600;margin-bottom:8px;color:#0f172a;"></div>
+
+                        <div class="spec-subhead">Raw Ingested Text Payload (Grounding)</div>
+                        <p id="drawer-raw-payload" class="spec-code" style="margin-bottom:10px;display:block;white-space:pre-wrap;"></p>
+
+                        <div class="spec-subhead">Unified AST Character Diff (Lines Added/Removed)</div>
+                        <div class="diff-view-box" id="drawer-diff-box"></div>
+                        
+                        <div class="provenance-meta-row">
+                            <span id="drawer-hash" class="hash-tag"></span>
+                            <a id="drawer-primary-link" href="#" target="_blank" rel="noopener noreferrer" class="primary-link-btn">
+                                🌐 Open Official Portal ↗
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-footer">
+                <div class="drawer-footer-actions">
+                    <button class="btn-primary" id="btn-copy-spec">📋 Copy 1-Page Spec</button>
+                    <button class="btn-secondary" id="btn-copy-jira">⚡ Copy Jira Story</button>
+                    <button class="btn-slack" id="btn-drawer-slack">📢 Dispatch to Squad</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Republic Baseline Modal -->
+    <div class="modal-overlay" id="baseline-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3>Trade Republic Core Baseline</h3>
+                    <p class="modal-subtitle">Canonical internal product baseline used for zero-extrapolation delta synthesis</p>
+                </div>
+                <button class="close-modal" id="close-baseline-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="baseline-modal-body">
+                Loading baseline...
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

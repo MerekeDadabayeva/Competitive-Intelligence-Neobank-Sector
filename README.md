@@ -3,7 +3,8 @@
 > **Autonomous Head of Product Intelligence Engine for Fintech PMs**  
 > Tracks competitor pricing, product launches, marketing promotions, and App Store sentiment shifts in real time — with **zero hallucinations**, **deterministic data provenance**, and **1-click execution bridges (PRDs & Jira Epics)**.
 
-🌐 **Live Vercel Application:** [https://competitive-intelligence-neobank-se.vercel.app/](https://competitive-intelligence-neobank-se.vercel.app/)
+🌐 **Live Vercel Application:** [https://competitive-intelligence-neobank-se.vercel.app/](https://competitive-intelligence-neobank-se.vercel.app/)  
+🐙 **GitHub Pages Deployment:** [https://merekedadabayeva.github.io/Competitive-Intelligence-Neobank-Sector/](https://merekedadabayeva.github.io/Competitive-Intelligence-Neobank-Sector/)
 
 ---
 
