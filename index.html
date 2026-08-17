@@ -11,57 +11,68 @@
 </head>
 <body>
     <div class="app-layout">
-        <!-- 1. Left Sidebar Navigation -->
+        <!-- 1. Left Sidebar Navigation (Competitors Front & Center) -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="logo-mark">TR</div>
-                <div class="brand-text">
-                    <span class="brand-title">Trade Republic</span>
-                    <span class="brand-subtitle">Competitive Radar</span>
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="logo-mark">TR</div>
+                    <div class="brand-text">
+                        <span class="brand-title">Trade Republic</span>
+                        <span class="brand-subtitle">Competitive Radar</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="sidebar-live-status">
-                <span class="live-pulse-dot"></span>
-                <span class="live-status-text">8 Live Feeds Verified</span>
-            </div>
+                <div class="sidebar-live-status">
+                    <span class="live-pulse-dot"></span>
+                    <span class="live-status-text">8 Live Feeds Verified</span>
+                </div>
 
-            <!-- Primary Views -->
-            <div class="sidebar-nav-group">
-                <div class="sidebar-group-title">Core Radar Views</div>
-                <button class="sidebar-nav-btn active" data-tab="radar">
-                    <span class="nav-icon">📡</span>
-                    <span class="nav-label">Live Radar</span>
-                    <span class="nav-count-badge" id="sidebar-feed-count">8</span>
-                </button>
-                <button class="sidebar-nav-btn" data-tab="brief">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-label">Executive Brief & Strategy</span>
-                </button>
-                <button class="sidebar-nav-btn" data-tab="integrity">
-                    <span class="nav-icon">🛡️</span>
-                    <span class="nav-label">Data Integrity & Pipeline</span>
-                </button>
-            </div>
+                <!-- Section 1: Competitors (Primary Navigation) -->
+                <div class="sidebar-nav-group">
+                    <div class="sidebar-group-title">Competitors</div>
+                    <button class="sidebar-competitor-btn active" data-competitor="ALL">
+                        <span class="comp-icon-dot dot-all">🌐</span>
+                        <span class="comp-nav-name">All Competitors</span>
+                        <span class="comp-count-pill" id="count-all">8</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="N26">
+                        <span class="comp-icon-dot dot-n26">🟢</span>
+                        <span class="comp-nav-name">N26</span>
+                        <span class="comp-count-pill" id="count-n26">2</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="Scalable Capital">
+                        <span class="comp-icon-dot dot-scalable">🔴</span>
+                        <span class="comp-nav-name">Scalable Capital</span>
+                        <span class="comp-count-pill" id="count-scalable">2</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="Revolut">
+                        <span class="comp-icon-dot dot-revolut">⚫</span>
+                        <span class="comp-nav-name">Revolut</span>
+                        <span class="comp-count-pill" id="count-revolut">2</span>
+                    </button>
+                    <button class="sidebar-competitor-btn" data-competitor="Bitpanda">
+                        <span class="comp-icon-dot dot-bitpanda">🔵</span>
+                        <span class="comp-nav-name">Bitpanda</span>
+                        <span class="comp-count-pill" id="count-bitpanda">2</span>
+                    </button>
+                </div>
 
-            <!-- Strategic JTBD Pillars Filter -->
-            <div class="sidebar-nav-group" id="sidebar-pillars-group">
-                <div class="sidebar-group-title">Strategic Pillars</div>
-                <button class="sidebar-pillar-btn active" data-pillar="ALL">
-                    <span class="pillar-bullet">●</span> All Strategic Pillars
-                </button>
-                <button class="sidebar-pillar-btn" data-pillar="Value Realization">
-                    <span class="pillar-bullet text-emerald">●</span> Value Realization
-                </button>
-                <button class="sidebar-pillar-btn" data-pillar="Conversion / Monetization Hooks">
-                    <span class="pillar-bullet text-blue">●</span> Monetization Hooks
-                </button>
-                <button class="sidebar-pillar-btn" data-pillar="Onboarding Friction">
-                    <span class="pillar-bullet text-indigo">●</span> Onboarding Friction
-                </button>
-                <button class="sidebar-pillar-btn" data-pillar="Feature Bloat">
-                    <span class="pillar-bullet text-purple">●</span> Feature Bloat Guardrail
-                </button>
+                <!-- Section 2: Executive Views & Tools -->
+                <div class="sidebar-nav-group">
+                    <div class="sidebar-group-title">Reports & Tools</div>
+                    <button class="sidebar-view-btn active" data-tab="radar">
+                        <span class="nav-icon">📡</span>
+                        <span class="nav-label">Live Signal Feed</span>
+                    </button>
+                    <button class="sidebar-view-btn" data-tab="brief">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Executive Brief & Matrix</span>
+                    </button>
+                    <button class="sidebar-view-btn" data-tab="integrity">
+                        <span class="nav-icon">🛡️</span>
+                        <span class="nav-label">Data Integrity & AST Pipeline</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Sidebar Footer -->
@@ -69,26 +80,29 @@
                 <button class="btn-baseline-sidebar" id="open-baseline-btn">
                     <span>⚙️ TR Core Baseline</span>
                 </button>
-                <div class="sidebar-env-badge">v4.6 · Production Rigor</div>
+                <div class="sidebar-env-badge">v4.7 · Production Rigor</div>
             </div>
         </aside>
 
         <!-- 2. Main Content Area -->
         <main class="main-content">
-            <!-- Top Bar with Search and Title -->
+            <!-- Top Bar with Search and Dynamic Title -->
             <header class="content-topbar">
                 <div class="topbar-title-area">
-                    <h1 id="active-view-title">Live Intelligence Radar</h1>
-                    <span class="topbar-subtitle">Autonomous Competitor Delta Synthesis vs European Neobanks</span>
+                    <div class="title-with-badge">
+                        <h1 id="active-view-title">All Competitors</h1>
+                        <span class="topbar-filter-badge" id="active-competitor-badge">All 4 Neobanks</span>
+                    </div>
+                    <span class="topbar-subtitle" id="active-view-subtitle">Autonomous Competitor Delta Synthesis vs Trade Republic Baseline</span>
                 </div>
                 <div class="topbar-search-area">
-                    <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, keywords..." class="search-input">
+                    <input type="text" id="signal-search-input" placeholder="🔍 Search signals, fees, terms..." class="search-input">
                 </div>
             </header>
 
             <div class="content-scroll-container">
                 <!-- Top Executive KPI Metric Strip -->
-                <section class="kpi-strip">
+                <section class="kpi-strip" id="kpi-strip-container">
                     <div class="kpi-card">
                         <div class="kpi-label">Yield Spread Moat</div>
                         <div class="kpi-val text-emerald">+75 bps Lead</div>
@@ -111,25 +125,25 @@
                     </div>
                 </section>
 
-                <!-- VIEW 1: Live Radar (Clean 2-Column Intelligence Cards) -->
+                <!-- VIEW 1: Live Signal Feed -->
                 <section class="view-panel active" id="view-radar">
-                    <!-- Quick Filters (Competitors + Impact Triage) -->
+                    <!-- Quick Filter Bar (Triage + Strategic Pillars) -->
                     <div class="quick-filter-bar">
-                        <div class="filter-chips">
-                            <span class="filter-row-label">Competitor:</span>
-                            <button class="filter-chip active" data-filter-type="competitor" data-filter-val="ALL">All (4)</button>
-                            <button class="filter-chip" data-filter-type="competitor" data-filter-val="N26">N26</button>
-                            <button class="filter-chip" data-filter-type="competitor" data-filter-val="Scalable Capital">Scalable</button>
-                            <button class="filter-chip" data-filter-type="competitor" data-filter-val="Revolut">Revolut</button>
-                            <button class="filter-chip" data-filter-type="competitor" data-filter-val="Bitpanda">Bitpanda</button>
-                        </div>
-
                         <div class="filter-chips">
                             <span class="filter-row-label">Triage:</span>
                             <button class="filter-chip active" data-filter-type="impact" data-filter-val="ALL">All Moves</button>
                             <button class="filter-chip" data-filter-type="impact" data-filter-val="Differentiator (Moat)">🏰 Moat Leads</button>
                             <button class="filter-chip" data-filter-type="impact" data-filter-val="Defensive Need (Parity)">🛡️ Defensive</button>
                             <button class="filter-chip" data-filter-type="impact" data-filter-val="Noise (Low ROI)">🔇 Noise</button>
+                        </div>
+
+                        <div class="filter-chips">
+                            <span class="filter-row-label">Pillar:</span>
+                            <button class="filter-chip active" data-filter-type="pillar" data-filter-val="ALL">All Pillars</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Value Realization">💎 Value</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Conversion / Monetization Hooks">🎣 Monetization</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Onboarding Friction">🚪 Onboarding</button>
+                            <button class="filter-chip" data-filter-type="pillar" data-filter-val="Feature Bloat">🎈 Bloat Guard</button>
                         </div>
                     </div>
 
