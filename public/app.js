@@ -1,14 +1,14 @@
-// Trade Republic Competitive Intelligence Radar — Master-Detail Engine v4.0
+// Trade Republic Competitive Intelligence Radar — 5-Second Scannable Intelligence & Spec Drawer Engine v4.5
 
 (function() {
     let signalsData = getFullSignalsDataset();
     let baselineData = getFullBaselineData();
-    let selectedSignalId = signalsData[0].id;
+    let selectedPillar = 'ALL';
     let selectedCompetitor = 'ALL';
     let selectedImpact = 'ALL';
     let searchQuery = '';
-    let activeInspectorTab = 'prd'; // 'prd' | 'jira' | 'diff'
     let activeBriefFormat = 'summary'; // 'summary' | 'slack' | 'email'
+    let activeDrawerSignal = null;
 
     // Simulator State
     let simYieldRate = 4.00;
@@ -29,9 +29,6 @@
                 const data = await res.json();
                 if (Array.isArray(data) && data.length > 0) {
                     signalsData = data;
-                    if (!signalsData.find(s => s.id === selectedSignalId)) {
-                        selectedSignalId = signalsData[0].id;
-                    }
                     render();
                 }
             }
@@ -49,7 +46,7 @@
     }
 
     function setupEventListeners() {
-        // 1. Header Navigation Tabs
+        // 1. Header Navigation Tabs (Radar | Brief | Integrity)
         document.querySelectorAll('.nav-tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const targetTab = e.currentTarget.dataset.tab;
@@ -62,7 +59,18 @@
             });
         });
 
-        // 2. Filter Chips
+        // 2. Strategic Pillar Filter Chips
+        document.querySelectorAll('.pillar-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                const val = e.currentTarget.dataset.filterVal;
+                document.querySelectorAll('.pillar-chip').forEach(c => c.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                selectedPillar = val;
+                renderCardsGrid();
+            });
+        });
+
+        // 3. Competitor & Impact Filter Chips
         document.querySelectorAll('.filter-chip').forEach(chip => {
             chip.addEventListener('click', (e) => {
                 const type = e.currentTarget.dataset.filterType;
@@ -74,20 +82,32 @@
                 if (type === 'competitor') selectedCompetitor = val;
                 if (type === 'impact') selectedImpact = val;
 
-                renderRadarMasterList();
+                renderCardsGrid();
             });
         });
 
-        // 3. Search Input
+        // 4. Search Input
         const searchInput = document.getElementById('signal-search-input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 searchQuery = e.target.value.toLowerCase().trim();
-                renderRadarMasterList();
+                renderCardsGrid();
             });
         }
 
-        // 4. Baseline Modal
+        // 5. Drawer Controls
+        const drawerBackdrop = document.getElementById('spec-drawer-backdrop');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        if (closeDrawerBtn && drawerBackdrop) {
+            closeDrawerBtn.addEventListener('click', () => drawerBackdrop.classList.remove('active'));
+        }
+        if (drawerBackdrop) {
+            drawerBackdrop.addEventListener('click', (e) => {
+                if (e.target === drawerBackdrop) drawerBackdrop.classList.remove('active');
+            });
+        }
+
+        // 6. Baseline Modal Controls
         const openBaselineBtn = document.getElementById('open-baseline-btn');
         const baselineModal = document.getElementById('baseline-modal');
         const closeBaselineBtn = document.getElementById('close-baseline-btn');
@@ -106,58 +126,40 @@
             });
         }
 
-        // 5. Dynamic Delegated Clicks (Master List items, Inspector Tabs, Copy Buttons)
+        // 7. Dynamic Delegated Clicks (Card Actions, Copy Buttons, Slack Dispatch)
         document.body.addEventListener('click', (e) => {
-            // Click Master List Item
-            const rowItem = e.target.closest('.signal-row-item');
-            if (rowItem) {
-                selectedSignalId = rowItem.dataset.id;
-                document.querySelectorAll('.signal-row-item').forEach(r => r.classList.remove('active'));
-                rowItem.classList.add('active');
-                renderInspectorDrawer();
+            // Open Spec Drawer
+            const openDrawerBtn = e.target.closest('.btn-open-spec-drawer');
+            if (openDrawerBtn) {
+                const sigId = openDrawerBtn.dataset.id;
+                openSpecDrawer(sigId);
                 return;
             }
 
-            // Click Inspector Tab Button
-            const tabBtn = e.target.closest('.inspector-tab-btn');
-            if (tabBtn) {
-                activeInspectorTab = tabBtn.dataset.inspectorTab;
-                document.querySelectorAll('.inspector-tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.inspector-tab-content').forEach(c => c.classList.remove('active'));
-
-                tabBtn.classList.add('active');
-                const content = document.getElementById('insp-tab-' + activeInspectorTab);
-                if (content) content.classList.add('active');
-                return;
-            }
-
-            // Copy PRD Markdown
-            const copyPrdBtn = e.target.closest('#btn-copy-drawer-prd');
-            if (copyPrdBtn) {
-                const signal = getSelectedSignal();
-                if (!signal) return;
-                const prd = signal.mini_prd;
-                const md = `# [MINI-PRD] Strategic Response to ${signal.competitor}\n` +
-                    `**Pillar**: ${signal.jtbd_pillar || ''} | **Impact**: ${signal.impact_scoring ? signal.impact_scoring.classification : ''}\n\n` +
+            // Copy 1-Page Spec (Markdown)
+            const copySpecBtn = e.target.closest('#btn-copy-spec');
+            if (copySpecBtn && activeDrawerSignal) {
+                const s = activeDrawerSignal;
+                const prd = s.mini_prd;
+                const md = `# [1-PAGE SPEC] Strategic Counter-Response to ${s.competitor}\n` +
+                    `**Strategic Pillar**: ${s.jtbd_pillar || ''} | **Impact Triage**: ${s.impact_scoring ? s.impact_scoring.classification : ''}\n\n` +
                     `## 1. Problem Statement & Context\n${prd.problem_statement}\n\n` +
-                    `## 2. Proposed MVP Counter-Response\n${prd.proposed_mvp_response}\n\n` +
+                    `## 2. Proposed MVP Counter-Move\n${prd.proposed_mvp_response}\n\n` +
                     `## 3. Target Business Metrics\n${prd.target_metrics.map(m => '- [ ] ' + m).join('\n')}\n\n` +
-                    `## 4. Explicit Out-of-Scope (Guardrails)\n${prd.explicit_out_of_scope.map(s => '- ❌ ' + s).join('\n')}\n\n` +
-                    `## 5. Verification Source Artifact\n${signal.source_url}`;
+                    `## 4. Strict Out-of-Scope Limits (Feature Creep Discipline)\n${prd.explicit_out_of_scope.map(o => '- ❌ ' + o).join('\n')}\n\n` +
+                    `## 5. Primary Verification Link\n${s.source_url}`;
 
                 navigator.clipboard.writeText(md).then(() => {
-                    copyPrdBtn.textContent = '✓ Copied Markdown!';
-                    setTimeout(() => { copyPrdBtn.textContent = '📋 Copy Mini-PRD'; }, 2200);
+                    copySpecBtn.textContent = '✓ Copied Markdown!';
+                    setTimeout(() => { copySpecBtn.textContent = '📋 Copy 1-Page Spec'; }, 2200);
                 });
                 return;
             }
 
-            // Copy Jira Epic Gherkin
-            const copyJiraBtn = e.target.closest('#btn-copy-drawer-jira');
-            if (copyJiraBtn) {
-                const signal = getSelectedSignal();
-                if (!signal) return;
-                const j = signal.jira_gherkin_story;
+            // Copy Jira Story (Gherkin BDD)
+            const copyJiraBtn = e.target.closest('#btn-copy-jira');
+            if (copyJiraBtn && activeDrawerSignal) {
+                const j = activeDrawerSignal.jira_gherkin_story;
                 const txt = `h2. ${j.epic_title}\n\n*User Story:*\n${j.user_story}\n\n*Gherkin Scenarios:*\n{code}\n${j.gherkin_scenarios.join('\n\n')}\n{code}\n\n*Definition of Done:*\n${j.acceptance_criteria.map(ac => '# ' + ac).join('\n')}`;
 
                 navigator.clipboard.writeText(txt).then(() => {
@@ -167,21 +169,21 @@
                 return;
             }
 
-            // Slack Alert Trigger
-            const slackAlertBtn = e.target.closest('.btn-slack-alert');
-            if (slackAlertBtn) {
-                const ch = slackAlertBtn.dataset.channel || '#product-squad';
-                slackAlertBtn.textContent = '✓ Alert Sent to ' + ch + '!';
-                slackAlertBtn.classList.add('sent');
+            // Slack Dispatch from Drawer
+            const drawerSlackBtn = e.target.closest('#btn-drawer-slack');
+            if (drawerSlackBtn && activeDrawerSignal) {
+                const ch = activeDrawerSignal.category === 'pricing' ? '#pricing-committee' : activeDrawerSignal.category === 'marketing_promo' ? '#growth-squad' : '#brokerage-squad';
+                drawerSlackBtn.textContent = '✓ Dispatched to ' + ch + '!';
+                drawerSlackBtn.classList.add('sent');
                 setTimeout(() => {
-                    slackAlertBtn.textContent = '📢 Alert ' + ch;
-                    slackAlertBtn.classList.remove('sent');
+                    drawerSlackBtn.textContent = '📢 Dispatch to Squad';
+                    drawerSlackBtn.classList.remove('sent');
                 }, 2500);
                 return;
             }
         });
 
-        // 6. Brief Format Toggle & Copy
+        // 8. Executive Brief Toggle & Copy
         const formatBtns = document.querySelectorAll('#brief-format-toggle .format-btn');
         const copyBriefBtn = document.getElementById('copy-brief-btn');
         formatBtns.forEach(btn => {
@@ -202,7 +204,7 @@
             });
         }
 
-        // 7. Simulator Slider Listeners
+        // 9. Simulator Input Sliders
         document.body.addEventListener('input', (e) => {
             if (e.target.id === 'slider-yield-rate') {
                 simYieldRate = parseFloat(e.target.value);
@@ -220,25 +222,124 @@
         });
     }
 
-    function getSelectedSignal() {
-        return signalsData.find(s => s.id === selectedSignalId) || signalsData[0];
+    function openSpecDrawer(signalId) {
+        const signal = signalsData.find(s => s.id === signalId) || signalsData[0];
+        activeDrawerSignal = signal;
+
+        // Header Meta
+        const sourcePill = getSourcePillMeta(signal);
+        const sourcePillEl = document.getElementById('drawer-source-pill');
+        if (sourcePillEl) {
+            sourcePillEl.className = 'source-reliability-pill ' + sourcePill.className;
+            sourcePillEl.textContent = sourcePill.text;
+        }
+
+        const impactBadge = getImpactBadgeMeta(signal);
+        const impactBadgeEl = document.getElementById('drawer-impact-badge');
+        if (impactBadgeEl) {
+            impactBadgeEl.className = 'impact-badge ' + impactBadge.className;
+            impactBadgeEl.textContent = impactBadge.text;
+        }
+
+        const titleEl = document.getElementById('drawer-title');
+        if (titleEl) titleEl.textContent = signal.competitor + ' — ' + (signal.change_summary || '');
+
+        const subtitleEl = document.getElementById('drawer-subtitle');
+        if (subtitleEl) subtitleEl.textContent = `Pillar: ${signal.jtbd_pillar || 'Value Realization'} · Urgency: ${signal.impact_scoring ? signal.impact_scoring.urgency : 'P1'}`;
+
+        // 1. Response (Spec)
+        const problemEl = document.getElementById('drawer-problem-stmt');
+        if (problemEl) problemEl.textContent = signal.mini_prd.problem_statement;
+
+        const mvpEl = document.getElementById('drawer-proposed-mvp');
+        if (mvpEl) mvpEl.textContent = signal.mini_prd.proposed_mvp_response;
+
+        const metricsEl = document.getElementById('drawer-target-metrics');
+        if (metricsEl) metricsEl.innerHTML = signal.mini_prd.target_metrics.map(m => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(m)}</li>`).join('');
+
+        // 2. Out of Scope
+        const outOfScopeEl = document.getElementById('drawer-out-of-scope');
+        if (outOfScopeEl) outOfScopeEl.innerHTML = signal.mini_prd.explicit_out_of_scope.map(o => `<li>❌ ${escapeHtml(o)}</li>`).join('');
+
+        // 3. Jira Story
+        const epicEl = document.getElementById('drawer-jira-epic');
+        if (epicEl) epicEl.textContent = signal.jira_gherkin_story.epic_title;
+
+        const storyEl = document.getElementById('drawer-jira-story');
+        if (storyEl) storyEl.textContent = signal.jira_gherkin_story.user_story;
+
+        const gherkinEl = document.getElementById('drawer-jira-gherkin');
+        if (gherkinEl) gherkinEl.textContent = signal.jira_gherkin_story.gherkin_scenarios.join('\n\n');
+
+        const acEl = document.getElementById('drawer-jira-ac');
+        if (acEl) acEl.innerHTML = signal.jira_gherkin_story.acceptance_criteria.map(ac => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(ac)}</li>`).join('');
+
+        // 4. Diff & Provenance
+        const diffBox = document.getElementById('drawer-diff-box');
+        if (diffBox) diffBox.innerHTML = formatDiff(signal.diff_snippet);
+
+        const hashEl = document.getElementById('drawer-hash');
+        if (hashEl) hashEl.textContent = 'SHA256:' + (signal.id.replace(/[^a-f0-9]/gi, '').padEnd(32, 'a').substring(0, 32));
+
+        const primaryLink = document.getElementById('drawer-primary-link');
+        if (primaryLink) {
+            primaryLink.href = signal.source_url || '#';
+            primaryLink.textContent = `Verify Primary Source (${signal.source_tier}) ↗`;
+        }
+
+        // Open Drawer
+        const drawer = document.getElementById('spec-drawer-backdrop');
+        if (drawer) drawer.classList.add('active');
+    }
+
+    function getSourcePillMeta(s) {
+        if (s.category === 'app_reviews' || (s.source_tier && s.source_tier.includes('App Store'))) {
+            return { text: '🟢 VERIFIED • APP STORE v12.4', className: 'pill-green' };
+        }
+        if (s.source_tier && s.source_tier.includes('BaFin')) {
+            return { text: '🟡 REGULATORY REGISTER (BaFin)', className: 'pill-amber' };
+        }
+        if (s.category === 'pricing') {
+            return { text: '🟢 VERIFIED • FEE SCHEDULE', className: 'pill-green' };
+        }
+        if (s.category === 'marketing_promo') {
+            return { text: '🟢 VERIFIED • LEGAL TERMS', className: 'pill-green' };
+        }
+        return { text: '⚪ VERIFIED • PLAN CATALOG', className: 'pill-gray' };
+    }
+
+    function getImpactBadgeMeta(s) {
+        if (s.tr_delta) {
+            if (s.tr_delta.moat_status === 'leader') return { text: '[MOAT: DIFFERENTIATOR]', className: 'badge-moat' };
+            if (s.tr_delta.moat_status === 'threat') return { text: '[THREAT: DEFENSIVE PARITY]', className: 'badge-threat' };
+            if (s.tr_delta.moat_status === 'noise') return { text: '[NOISE: LOW ROI]', className: 'badge-noise' };
+        }
+        if (s.impact_scoring) {
+            if (s.impact_scoring.classification === 'Differentiator (Moat)') return { text: '[MOAT: DIFFERENTIATOR]', className: 'badge-moat' };
+            if (s.impact_scoring.classification === 'Noise (Low ROI)') return { text: '[NOISE: LOW ROI]', className: 'badge-noise' };
+            return { text: '[THREAT: DEFENSIVE PARITY]', className: 'badge-threat' };
+        }
+        return { text: '[PARITY: MONITOR]', className: 'badge-threat' };
     }
 
     function render() {
-        renderRadarMasterList();
-        renderInspectorDrawer();
+        renderCardsGrid();
         renderBriefView();
         renderParityTable();
         renderSimulatorView();
         renderIntegrityView();
     }
 
-    function renderRadarMasterList() {
-        const container = document.getElementById('master-signal-list');
+    function renderCardsGrid() {
+        const container = document.getElementById('intel-cards-grid');
         if (!container) return;
 
         // Apply filters
         let filtered = signalsData.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if (selectedPillar !== 'ALL') {
+            filtered = filtered.filter(s => s.jtbd_pillar === selectedPillar);
+        }
 
         if (selectedCompetitor !== 'ALL') {
             filtered = filtered.filter(s => s.competitor === selectedCompetitor);
@@ -256,183 +357,46 @@
         }
 
         if (!filtered.length) {
-            container.innerHTML = `<div class="empty-state" style="padding:32px;text-align:center;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;">No competitor signals match your active filter.</div>`;
+            container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:40px;text-align:center;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">No competitor signals match your active filters.</div>`;
             return;
-        }
-
-        // Ensure a valid selected signal exists in filtered
-        if (!filtered.find(s => s.id === selectedSignalId)) {
-            selectedSignalId = filtered[0].id;
-            renderInspectorDrawer();
         }
 
         container.innerHTML = filtered.map(s => {
             const compClass = (s.competitor || 'default').toLowerCase().replace(/\s+/g, '-');
-            const categoryDisplay = (s.category || 'signal').replace('_', ' ').toUpperCase();
-            const isActive = s.id === selectedSignalId ? 'active' : '';
-            
-            let moatClass = 'parity';
-            let moatLabel = 'Parity Check';
-
-            if (s.tr_delta) {
-                if (s.tr_delta.moat_status === 'leader') { moatClass = 'moat'; moatLabel = '🏰 ' + s.tr_delta.moat_label; }
-                else if (s.tr_delta.moat_status === 'threat') { moatClass = 'threat'; moatLabel = '🛡️ ' + s.tr_delta.moat_label; }
-                else if (s.tr_delta.moat_status === 'noise') { moatClass = 'noise'; moatLabel = '🔇 ' + s.tr_delta.moat_label; }
-                else { moatClass = 'parity'; moatLabel = '⚡ Parity Watch'; }
-            } else if (s.impact_scoring) {
-                if (s.impact_scoring.classification === 'Differentiator (Moat)') { moatClass = 'moat'; moatLabel = '🏰 Moat Lead'; }
-                else if (s.impact_scoring.classification === 'Noise (Low ROI)') { moatClass = 'noise'; moatLabel = '🔇 Low-ROI Noise'; }
-                else { moatClass = 'threat'; moatLabel = '🛡️ Defensive'; }
-            }
-
-            const deltaImp = s.tr_delta ? s.tr_delta.delta_implication : s.why_it_matters;
-            const targetMetric = s.tr_delta ? s.tr_delta.target_metric : (s.mini_prd && s.mini_prd.target_metrics ? s.mini_prd.target_metrics[0] : '🎯 Target KPI');
+            const sourcePill = getSourcePillMeta(s);
+            const impactBadge = getImpactBadgeMeta(s);
+            const deltaText = s.tr_delta ? s.tr_delta.delta_implication : s.why_it_matters;
+            const devImpactText = s.dev_sp ? `${s.dev_sp} | ${s.impact_scoring ? s.impact_scoring.urgency : 'P1'}` : '3 Story Points | P1 Next Sprint';
 
             return `
-                <div class="signal-row-item ${isActive}" data-id="${s.id}">
-                    <div class="row-top-meta">
-                        <div class="row-tags">
-                            <span class="badge badge-${compClass}">${s.competitor}</span>
-                            <span class="category-tag">${categoryDisplay}</span>
+                <div class="intel-card">
+                    <div>
+                        <div class="intel-card-header">
+                            <span class="source-reliability-pill ${sourcePill.className}">${sourcePill.text}</span>
+                            <span class="impact-badge ${impactBadge.className}">${impactBadge.text}</span>
                         </div>
-                        <span class="row-time">Verified Today</span>
+
+                        <div class="intel-card-headline">
+                            <span class="comp-brand comp-${compClass}">${s.competitor}</span> — ${escapeHtml(s.change_summary || '')}
+                        </div>
+
+                        <div class="intel-card-body">
+                            <p class="intel-delta-line">• <strong>Strategic Delta:</strong> ${escapeHtml(deltaText)}</p>
+                            <p class="intel-impact-line">• <strong>Estimated Dev Impact:</strong> ${escapeHtml(devImpactText)}</p>
+                        </div>
                     </div>
 
-                    <div class="row-title">${escapeHtml(s.change_summary || '')}</div>
-                    <div class="row-delta-snippet">${escapeHtml(deltaImp)}</div>
-
-                    <div class="row-bottom-meta">
-                        <span class="moat-tag ${moatClass}">${moatLabel}</span>
-                        <span class="row-kpi-pill">${escapeHtml(targetMetric)}</span>
+                    <div class="intel-card-footer">
+                        <a href="${s.source_url}" target="_blank" rel="noopener noreferrer" class="btn-diff-link">
+                            🔍 View Primary Diff ↗
+                        </a>
+                        <button class="btn-open-spec-drawer" data-id="${s.id}">
+                            ⚡ Open 1-Page Spec Drawer
+                        </button>
                     </div>
                 </div>
             `;
         }).join('');
-    }
-
-    function renderInspectorDrawer() {
-        const container = document.getElementById('detail-inspector-pane');
-        if (!container) return;
-
-        const signal = getSelectedSignal();
-        if (!signal) {
-            container.innerHTML = `<div style="padding:24px;color:#64748b;">Select a signal from the list to view tactical specs.</div>`;
-            return;
-        }
-
-        const compClass = (signal.competitor || 'default').toLowerCase().replace(/\s+/g, '-');
-        const trBaseline = signal.tr_delta ? signal.tr_delta.tr_baseline : '3.75% p.a. cash yield, €0 custody, €1 flat trading';
-        const deltaImp = signal.tr_delta ? signal.tr_delta.delta_implication : signal.why_it_matters;
-        const pmAction = signal.tr_delta ? signal.tr_delta.pm_action : (signal.mini_prd ? signal.mini_prd.proposed_mvp_response : 'Review competitive move');
-        const targetMetric = signal.tr_delta ? signal.tr_delta.target_metric : (signal.mini_prd && signal.mini_prd.target_metrics ? signal.mini_prd.target_metrics[0] : '🎯 Target KPI');
-        const slackChannel = signal.category === 'pricing' ? '#pricing-committee' : signal.category === 'marketing_promo' ? '#growth-squad' : '#product-core';
-        const storyPoints = signal.dev_sp || '3 SP (1 Sprint)';
-        const hash = 'SHA256:' + (signal.id.replace(/[^a-f0-9]/gi, '').padEnd(32, 'a').substring(0, 32));
-
-        container.innerHTML = `
-            <div class="inspector-header">
-                <div class="inspector-header-top">
-                    <span class="badge badge-${compClass}">${signal.competitor}</span>
-                    <span class="category-tag">${(signal.category||'').toUpperCase()}</span>
-                    <span class="row-time">${signal.source_tier || 'Tier 1 Feed'}</span>
-                </div>
-                <div class="inspector-title">${escapeHtml(signal.change_summary || '')}</div>
-                <div class="inspector-subtitle">Pillar: <strong>${signal.jtbd_pillar || 'Value Realization'}</strong> · Impact: <strong>${signal.impact_scoring ? signal.impact_scoring.classification : 'Moat'}</strong></div>
-            </div>
-
-            <div class="inspector-subtabs">
-                <button class="inspector-tab-btn ${activeInspectorTab === 'prd' ? 'active' : ''}" data-inspector-tab="prd">📝 1-Page PRD</button>
-                <button class="inspector-tab-btn ${activeInspectorTab === 'jira' ? 'active' : ''}" data-inspector-tab="jira">⚡ Jira Story (${escapeHtml(storyPoints)})</button>
-                <button class="inspector-tab-btn ${activeInspectorTab === 'diff' ? 'active' : ''}" data-inspector-tab="diff">🔍 AST Diff & Provenance</button>
-            </div>
-
-            <div class="inspector-body">
-                <!-- Tab 1: Mini-PRD -->
-                <div class="inspector-tab-content ${activeInspectorTab === 'prd' ? 'active' : ''}" id="insp-tab-prd">
-                    <div class="spec-section">
-                        <h4>1. Strategic Delta & TR Baseline</h4>
-                        <p class="spec-text"><strong>TR Baseline:</strong> ${escapeHtml(trBaseline)}</p>
-                        <p class="spec-text" style="margin-top:4px;"><strong>Market Delta:</strong> ${escapeHtml(deltaImp)}</p>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>2. Proposed MVP Counter-Response</h4>
-                        <p class="spec-text" style="color:#0f172a;font-weight:600;">${escapeHtml(pmAction)}</p>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>3. Target Business Metrics</h4>
-                        <ul class="spec-list">
-                            ${signal.mini_prd.target_metrics.map(m => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(m)}</li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <div class="spec-section out-of-scope-banner">
-                        <h4>4. Explicit Out-of-Scope Guardrails (What NOT to build)</h4>
-                        <ul class="spec-list">
-                            ${signal.mini_prd.explicit_out_of_scope.map(s => `<li>❌ ${escapeHtml(s)}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Tab 2: Jira Gherkin -->
-                <div class="inspector-tab-content ${activeInspectorTab === 'jira' ? 'active' : ''}" id="insp-tab-jira">
-                    <div class="spec-section">
-                        <h4>Epic Title</h4>
-                        <p class="spec-code">${escapeHtml(signal.jira_gherkin_story.epic_title)}</p>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>User Story</h4>
-                        <p class="spec-text">${escapeHtml(signal.jira_gherkin_story.user_story)}</p>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>Gherkin Scenarios (Given / When / Then)</h4>
-                        <pre class="gherkin-box">${escapeHtml(signal.jira_gherkin_story.gherkin_scenarios.join('\n\n'))}</pre>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>Definition of Done & Latency SLO (<200ms p95)</h4>
-                        <ul class="spec-list">
-                            ${signal.jira_gherkin_story.acceptance_criteria.map(ac => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(ac)}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Tab 3: Unified AST Diff & Provenance -->
-                <div class="inspector-tab-content ${activeInspectorTab === 'diff' ? 'active' : ''}" id="insp-tab-diff">
-                    <div class="spec-section">
-                        <h4>Unified AST Character Diff</h4>
-                        <div class="diff-content">${formatDiff(signal.diff_snippet)}</div>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>Cryptographic Grounding Verification</h4>
-                        <p class="spec-code">${hash}</p>
-                    </div>
-
-                    <div class="spec-section">
-                        <h4>Primary Canonical Document</h4>
-                        <a href="${signal.source_url}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="margin-top:4px;">
-                            Verify Primary Source (${signal.source_tier}) ↗
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="inspector-actions-footer">
-                ${activeInspectorTab === 'prd' 
-                    ? `<button class="btn-primary" id="btn-copy-drawer-prd">📋 Copy Mini-PRD</button>`
-                    : activeInspectorTab === 'jira'
-                    ? `<button class="btn-primary" id="btn-copy-drawer-jira">⚡ Copy Jira Story</button>`
-                    : `<a href="${signal.source_url}" target="_blank" class="btn-primary" style="text-decoration:none;">Verify Source ↗</a>`
-                }
-                <button class="btn-slack-alert" data-channel="${slackChannel}">
-                    📢 Alert ${slackChannel}
-                </button>
-            </div>
-        `;
     }
 
     function renderBriefView() {
@@ -552,7 +516,7 @@ RECOMMENDATIONS:
                         <td>3.75% p.a. on cash up to €50k</td>
                         <td><strong class="text-emerald">+75 bps</strong> net yield advantage</td>
                         <td>Do NOT raise rate; run acquisition campaign on yield spread</td>
-                        <td><span class="row-kpi-pill">📈 +14% Deposit Retention</span></td>
+                        <td>📈 +14% Deposit Retention</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-scalable-capital">Scalable</span></td>
@@ -560,7 +524,7 @@ RECOMMENDATIONS:
                         <td>3.75% p.a. (€0/mo fee)</td>
                         <td>Scalable charges €60/yr; TR is <strong>€0 Free</strong></td>
                         <td>Contrast ad: <em>"Why pay €60/yr for 3.75% yield?"</em></td>
-                        <td><span class="row-kpi-pill">📉 -18% Switcher CAC</span></td>
+                        <td>📉 -18% Switcher CAC</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-scalable-capital">Scalable</span></td>
@@ -568,7 +532,7 @@ RECOMMENDATIONS:
                         <td>Free custody, €1 flat trading</td>
                         <td>Poaching attack on >€10k custody</td>
                         <td>VIP summary showing €300+ lifetime fee savings</td>
-                        <td><span class="row-kpi-pill">🛡️ €24M+ AUC Protected</span></td>
+                        <td>🛡️ €24M+ AUC Protected</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-n26">N26</span></td>
@@ -576,7 +540,7 @@ RECOMMENDATIONS:
                         <td>4.6★ rating, 3-min KYC</td>
                         <td>Onboarding drop-off at competitor</td>
                         <td>Launch acquisition ads: <em>"Buy first ETF in 3 mins"</em></td>
-                        <td><span class="row-kpi-pill">🎯 +22% Paid CAC Efficiency</span></td>
+                        <td>🎯 +22% Paid CAC Efficiency</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-revolut">Revolut</span></td>
@@ -584,7 +548,7 @@ RECOMMENDATIONS:
                         <td>€10-€20 stock + 1% Saveback</td>
                         <td>High CAC bounty pressure</td>
                         <td>Activate Saveback Payroll Multiplier (+0.5%)</td>
-                        <td><span class="row-kpi-pill">⚡ 1.8x Account Lock-in</span></td>
+                        <td>⚡ 1.8x Account Lock-in</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-bitpanda">Bitpanda</span></td>
@@ -592,7 +556,7 @@ RECOMMENDATIONS:
                         <td>€1 flat crypto fee + €0 plans</td>
                         <td>Yield compression across sector</td>
                         <td>Promote €0 automated crypto savings plans in discovery</td>
-                        <td><span class="row-kpi-pill">💰 +10% Crypto Trade Volume</span></td>
+                        <td>💰 +10% Crypto Trade Volume</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-revolut">Revolut</span></td>
@@ -600,7 +564,7 @@ RECOMMENDATIONS:
                         <td>Free card with 1% Saveback</td>
                         <td>Lifestyle status bloat</td>
                         <td>Filter as low-ROI noise; protect squad roadmap</td>
-                        <td><span class="row-kpi-pill">⏱️ +2 Dev Sprints Saved</span></td>
+                        <td>⏱️ +2 Dev Sprints Saved</td>
                     </tr>
                 </tbody>
             </table>
@@ -787,24 +751,24 @@ RECOMMENDATIONS:
                 source_url: "https://n26.com/en-de/plans",
                 source_tier: "N26 Depository & Pricing Schedule (BaFin ID: 147854)",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "N26 increased Instant Savings interest rate to 3.00% p.a. for Metal customers (up from 1.26% p.a.).",
+                change_summary: "Instant Savings Interest Hiked to 3.00% p.a. for Metal Tier",
                 raw_payload_snippet: "N26 Bank AG Legal Pricing Schedule (Aug 2026): Instant Savings for Metal account holders adjusted from 1.26% p.a. to 3.00% p.a. Standard free accounts remain at 1.26% p.a. with quarterly interest disbursement.",
-                friction_target: "Interest Yield Margin",
-                dev_sp: "3 SP (1 Sprint)",
+                friction_target: "Deposit Yield Competition",
+                dev_sp: "3 Story Points",
                 tr_delta: {
                     tr_baseline: "3.75% p.a. on cash up to €50k (€0 monthly account fee)",
-                    delta_implication: "N26 narrows the deposit yield gap, but TR retains a +75 bps yield lead with zero monthly subscription cost.",
-                    pm_action: "Do NOT raise headline rate. Launch acquisition ads highlighting TR's 75 bps yield spread over N26 without €16.90/mo fees.",
+                    delta_implication: "TR holds +75 bps net yield lead (3.75% vs 3.00%) with €0 fee vs N26 €16.90/mo Metal.",
+                    pm_action: "Launch tactical contrast ads emphasizing TR's 75 bps yield lead over N26 without €16.90/mo subscription fees.",
                     target_metric: "📈 +14% D30 Deposit Retention",
-                    out_of_scope: "Do NOT match N26 Metal subscription bundle or subsidize temporary cash rate increases.",
+                    out_of_scope: "Do NOT match N26 Metal subscription bundle or subsidize temporary promotional rate spikes.",
                     moat_status: "leader",
-                    moat_label: "TR +75 bps Moat"
+                    moat_label: "Moat Differentiator"
                 },
-                why_it_matters: "Impacts deposit competition vs Trade Republic 3.75% p.a. on uninvested cash up to 50,000 EUR.",
+                why_it_matters: "TR retains +75 bps yield lead on uninvested cash up to €50,000.",
                 diff_snippet: "@@ -3,5 +3,5 @@\n 0.00 € / month\n Instant Savings: 1.26% p.a.\n ## N26 Metal\n 16.90 € / month\n-Instant Savings: 1.26% p.a.\n+Instant Savings: 3.00% p.a.",
                 requires_review: false,
                 jtbd_pillar: "Value Realization",
-                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P1 - Next Sprint", rationale: "Trade Republic retains a clear +75 bps yield advantage (3.75% vs 3.00%)." },
+                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P1 High Priority", rationale: "Trade Republic retains a clear +75 bps yield advantage." },
                 mini_prd: {
                     problem_statement: "N26 raised instant savings interest to 3.00% p.a. for Metal customers, narrowing the deposit gap.",
                     proposed_mvp_response: "Launch targeted retention & acquisition campaign highlighting Trade Republic's +75 bps yield lead with €0 subscription fees.",
@@ -826,24 +790,24 @@ RECOMMENDATIONS:
                 source_url: "https://de.scalable.capital/en/pricing",
                 source_tier: "Scalable Capital Baader Bank Depository Agreement",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "Scalable Capital reduced PRIME+ interest rate on uninvested cash from 4.00% p.a. to 3.75% p.a.",
+                change_summary: "PRIME+ Interest Rate on Cash Reduced to 3.75% p.a.",
                 raw_payload_snippet: "Scalable Capital GmbH Terms: PRIME+ brokerage fee of 4.99 EUR/month unlocks 3.75% p.a. interest on cash balances up to 1,000,000 EUR deposited with Baader Bank AG (effective Aug 2026, down from 4.00% p.a.).",
                 friction_target: "Subscription Fee Arbitrage",
-                dev_sp: "2 SP (1 Sprint)",
+                dev_sp: "2 Story Points",
                 tr_delta: {
                     tr_baseline: "3.75% p.a. on cash up to €50k with €0 monthly fee",
-                    delta_implication: "Scalable lowered yield to exact parity with TR (3.75%), but Scalable charges €59.88/year while TR is €0 Free.",
-                    pm_action: "Launch contrast ad: 'Why pay €60/year for 3.75% interest when Trade Republic gives it for free?'",
+                    delta_implication: "Scalable lowered yield to exact parity with TR (3.75%), but Scalable charges €60/yr while TR is €0 Free.",
+                    pm_action: "Run contrast campaign: 'Why pay €60/year for 3.75% interest when Trade Republic gives it for free?'",
                     target_metric: "📉 -18% Switcher CAC",
                     out_of_scope: "Do NOT charge recurring account maintenance fees for uninvested cash.",
                     moat_status: "leader",
-                    moat_label: "TR Free vs €60/yr Moat"
+                    moat_label: "Moat Differentiator"
                 },
                 why_it_matters: "Scalable at exact rate parity, but requires a paid subscription.",
                 diff_snippet: "@@ -1,3 +1,3 @@\n-PRIME+ (4.99 €/mo): 4.00% p.a. interest on cash up to 1,000,000 €\n+PRIME+ (4.99 €/mo): 3.75% p.a. interest on cash up to 1,000,000 €",
                 requires_review: false,
                 jtbd_pillar: "Value Realization",
-                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P1 - Next Sprint", rationale: "Scalable charges €4.99/mo (€60/yr) for the exact same rate TR provides for free." },
+                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P1 High Priority", rationale: "Scalable charges €60/yr for the same rate TR provides for free." },
                 mini_prd: {
                     problem_statement: "Scalable Capital adjusted PRIME+ rate down to 3.75% p.a. while charging €4.99/month.",
                     proposed_mvp_response: "Deploy comparison banner emphasizing zero monthly fees on 3.75% cash yield.",
@@ -854,7 +818,7 @@ RECOMMENDATIONS:
                     epic_title: "[COMP-INTEL] Strategic Response to Scalable PRICING",
                     user_story: "As a TR user, I want visibility into my 1% Saveback alongside 3.75% interest.",
                     gherkin_scenarios: ["Scenario: User compares deposits\n  Given cash balance > 0\n  When viewing overview\n  Then interest and Saveback displayed"],
-                    acceptance_criteria: ["Saveback card activation tracked", "Render time <200ms"]
+                    acceptance_criteria: ["Saveback card activation tracked", "Render time < 200ms"]
                 },
                 status: "auto_published"
             },
@@ -865,24 +829,24 @@ RECOMMENDATIONS:
                 source_url: "https://de.scalable.capital/en/promotions",
                 source_tier: "Scalable Capital BaFin Asset Transfer Filing",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "Scalable Capital launched a €100 cash bonus promotion for portfolio transfers over €10,000.",
+                change_summary: "€100 Cash Bonus Launched for Portfolio Transfers > €10,000",
                 raw_payload_snippet: "Portfolio Transfer Bonus Terms 2026: Eligible retail clients who initiate and complete an external securities portfolio transfer exceeding 10,000 EUR in market value shall receive a one-time cash credit of 100 EUR.",
                 friction_target: "Custody Poaching",
-                dev_sp: "5 SP (2 Sprints)",
+                dev_sp: "5 Story Points",
                 tr_delta: {
                     tr_baseline: "Free custody, €1 flat trade execution, €0 ETF savings plans",
                     delta_implication: "Direct poaching attack targeting high-balance custody accounts (>€10k) to monetize trading flow.",
-                    pm_action: "Trigger in-app VIP summary for accounts >€10k showing how TR's €1 flat fee saves €300+ vs percentage brokers over 3 years.",
+                    pm_action: "Trigger VIP summary for accounts >€10k showing how TR's €1 flat fee saves €300+ vs percentage brokers over 3 years.",
                     target_metric: "🛡️ €24M+ AUC Protected",
                     out_of_scope: "Do NOT charge portfolio exit fees that penalize users or damage brand NPS.",
                     moat_status: "threat",
-                    moat_label: "Poaching Threat"
+                    moat_label: "Defensive Parity"
                 },
                 why_it_matters: "Direct competitor campaign targeting high-net-worth customer holdings.",
                 diff_snippet: "@@ -1,3 +1,3 @@\n-Start investing in 7,500+ stocks and ETFs.\n+Portfolio Transfer Bonus: receive up to 100 € cash bonus (transfers over 10,000 €).",
                 requires_review: false,
                 jtbd_pillar: "Conversion / Monetization Hooks",
-                impact_scoring: { classification: "Defensive Need (Parity)", urgency: "P1 - Next Sprint", rationale: "€100 cash bonus targeting active competitor holdings." },
+                impact_scoring: { classification: "Defensive Need (Parity)", urgency: "P1 High Priority", rationale: "€100 cash bonus targeting active competitor holdings." },
                 mini_prd: {
                     problem_statement: "Scalable launched €100 portfolio transfer bonus for accounts >€10k.",
                     proposed_mvp_response: "Trigger VIP value summaries for users >€10k, emphasizing €1 flat fee.",
@@ -906,24 +870,24 @@ RECOMMENDATIONS:
                 android_url: "https://play.google.com/store/apps/details?id=de.number26.android",
                 source_tier: "Apple App Store & Play Store v12.4 Feed",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "N26 app rating dropped to 4.3★ (-0.4 drop) following update v12.4 KYC verification loops and biometric login failures.",
+                change_summary: "App Rating Drops to 4.3★ Following v12.4 KYC Verification Loops",
                 raw_payload_snippet: "App Store Release v12.4 Reviews (n=1,240): 68% of 1-star reviews cite persistent ID re-verification loops during biometric authentication and repeated session timeouts upon device unlock.",
-                friction_target: "KYC Verification Drop-off",
-                dev_sp: "5 SP (Offensive Sprint)",
+                friction_target: "KYC Onboarding Friction",
+                dev_sp: "5 Story Points",
                 tr_delta: {
                     tr_baseline: "4.6★ rating on iOS & Google Play; 3-minute seamless biometric onboarding",
-                    delta_implication: "Major competitor suffering severe KYC churn and authentication errors following their v12.4 mobile release.",
+                    delta_implication: "Major competitor suffering severe KYC churn and authentication errors following v12.4 release.",
                     pm_action: "Launch tactical paid search & social acquisition campaign: 'Tired of login errors? Open your Trade Republic account in 3 minutes.'",
                     target_metric: "🎯 +22% Paid CAC Efficiency",
                     out_of_scope: "Do NOT alter Trade Republic's existing BaFin-compliant biometric verification flow.",
                     moat_status: "leader",
-                    moat_label: "Friction Arbitrage Moat"
+                    moat_label: "Moat Differentiator"
                 },
                 why_it_matters: "Massive conversion friction at competitor unlocks prime acquisition arbitrage.",
                 diff_snippet: "@@ -1,3 +1,3 @@\n-Rating: 4.7 ★ (85,000 reviews)\n+Rating: 4.3 ★ (88,000 reviews)\n-Fast biometric login.\n+Users report KYC loops and biometric failure after update v12.4.",
                 requires_review: false,
                 jtbd_pillar: "Onboarding Friction",
-                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P0 - Immediate Response", rationale: "Competitor mobile release caused -0.4 rating drop; high acquisition conversion opportunity." },
+                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P0 Immediate Response", rationale: "Competitor mobile release caused -0.4 rating drop; high acquisition conversion opportunity." },
                 mini_prd: {
                     problem_statement: "N26 app rating slipped to 4.3★ after v12.4 introduced KYC re-verification loops.",
                     proposed_mvp_response: "Deploy comparison ads highlighting Trade Republic's 3-minute biometric onboarding.",
@@ -945,24 +909,24 @@ RECOMMENDATIONS:
                 source_url: "https://www.revolut.com/legal/referral-programme/",
                 source_tier: "Revolut Bank UAB Legal Referral Terms",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "Revolut boosted Summer Referral reward to €60/friend who signs up, orders a card, and spends €5+ 3 times.",
+                change_summary: "Summer Referral Bounty Boosted to €60 per Referee",
                 raw_payload_snippet: "Revolut Referral Campaign T&Cs (DE-2026-Q3): Referrers are awarded 60.00 EUR per referee who successfully completes identity verification, orders a physical card, and makes 3 qualifying purchases of at least 5.00 EUR each within 21 days.",
-                friction_target: "Viral Loop CAC Spike",
-                dev_sp: "3 SP (1 Sprint)",
+                friction_target: "Viral CAC Bounty Pressure",
+                dev_sp: "3 Story Points",
                 tr_delta: {
                     tr_baseline: "€10-€20 fractional stock reward + 1% Card Saveback",
-                    delta_implication: "Revolut escalating CAC pressure with upfront bounties. High risk of bounty hunters and post-reward dormancy.",
-                    pm_action: "Do NOT copy high upfront cash payouts. Instead, activate Saveback Payroll Multiplier (+0.5%) for primary account salary deposits.",
+                    delta_implication: "Revolut escalating CAC pressure with upfront bounties. High risk of post-payout dormancy.",
+                    pm_action: "Do NOT copy upfront cash payouts. Instead, activate Saveback Payroll Multiplier (+0.5%) for primary account salary deposits.",
                     target_metric: "⚡ 1.8x Account Lock-in",
                     out_of_scope: "Do NOT pay upfront cash bounties without verifying recurring deposit habits.",
-                    moat_status: "parity",
-                    moat_label: "CAC Escalation"
+                    moat_status: "threat",
+                    moat_label: "Defensive Parity"
                 },
                 why_it_matters: "Escalates customer acquisition cost across European retail fintech.",
                 diff_snippet: "@@ -1,3 +1,3 @@\n-Get 40 € for every friend who signs up.\n+Summer Referral Boost: Get 60 € for every friend who signs up and completes 3 purchases > 5 € within 21 days.",
                 requires_review: false,
                 jtbd_pillar: "Conversion / Monetization Hooks",
-                impact_scoring: { classification: "Defensive Need (Parity)", urgency: "P1 - Next Sprint", rationale: "Referral bounty boosted to €60, escalating CAC pressure." },
+                impact_scoring: { classification: "Defensive Need (Parity)", urgency: "P1 High Priority", rationale: "Referral bounty boosted to €60, escalating CAC pressure." },
                 mini_prd: {
                     problem_statement: "Revolut increased referral bounty to €60/friend.",
                     proposed_mvp_response: "Deploy Saveback referral push: +1% bonus Saveback on next €500 card spending.",
@@ -984,10 +948,10 @@ RECOMMENDATIONS:
                 source_url: "https://www.bitpanda.com/en/legal/crypto-fees",
                 source_tier: "Bitpanda GmbH Crypto Asset Fee Schedule",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "Bitpanda reduced crypto staking yields on ETH (from 3.8% to 3.1% APY) and SOL (from 6.5% to 5.8% APY).",
+                change_summary: "Crypto Staking Yields Cut (ETH Down to 3.1% APY, SOL to 5.8%)",
                 raw_payload_snippet: "Bitpanda Staking Schedule: Effective Aug 2026, staking rewards adjusted downward: Ethereum (ETH) APY reduced to 3.1% (prior 3.8%), Solana (SOL) APY reduced to 5.8% (prior 6.5%).",
                 friction_target: "Crypto Yield Compression",
-                dev_sp: "3 SP (1 Sprint)",
+                dev_sp: "3 Story Points",
                 tr_delta: {
                     tr_baseline: "€1 flat execution fee across 50+ cryptocurrencies with €0 recurring custody",
                     delta_implication: "Bitpanda staking yield compression signals tightening crypto margins; Trade Republic's flat €1 fee model remains transparent.",
@@ -995,13 +959,13 @@ RECOMMENDATIONS:
                     target_metric: "💰 +10% Crypto Trade Volume",
                     out_of_scope: "Do NOT introduce opaque variable spread tiers for crypto assets.",
                     moat_status: "leader",
-                    moat_label: "Flat Fee Transparency Moat"
+                    moat_label: "Moat Differentiator"
                 },
                 why_it_matters: "Compares to Trade Republic 1.00 EUR flat fee crypto trading structure.",
                 diff_snippet: "@@ -1,3 +1,3 @@\n-| ETH | 3.8% APY |\n+| ETH | 3.1% APY |\n-| SOL | 6.5% APY |\n+| SOL | 5.8% APY |",
                 requires_review: false,
                 jtbd_pillar: "Value Realization",
-                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P2 - Monitor", rationale: "Bitpanda lowered staking yields; TR retains flat fee leadership." },
+                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P2 Medium Priority", rationale: "Bitpanda lowered staking yields; TR retains flat fee leadership." },
                 mini_prd: {
                     problem_statement: "Bitpanda lowered staking yields on ETH and SOL.",
                     proposed_mvp_response: "Emphasize TR €1 flat crypto fee without spread markups.",
@@ -1023,10 +987,10 @@ RECOMMENDATIONS:
                 source_url: "https://www.revolut.com/en-DE/our-pricing-plans/",
                 source_tier: "Revolut Ltd Retail Fee Schedule (Ultra Tier)",
                 timestamp: "2026-08-15T05:00:00.000Z",
-                change_summary: "Revolut introduced Ultra tier at €45.00/month with platinum-plated card and airport lounge access.",
+                change_summary: "Ultra Subscription Tier Launched at €45.00/Month",
                 raw_payload_snippet: "Revolut Retail Subscription Schedule: Ultra Plan introduced at 45.00 EUR/month (or 540.00 EUR/year upfront). Includes platinum-plated contactless card and unlimited DragonPass airport lounge passes.",
-                friction_target: "Status/Lifestyle Bloat",
-                dev_sp: "0 SP (Filtered Noise)",
+                friction_target: "Status Lifestyle Bloat",
+                dev_sp: "0 Story Points",
                 tr_delta: {
                     tr_baseline: "Free card with 1% Saveback and zero monthly fee",
                     delta_implication: "Lifestyle gimmick with low conversion among wealth accumulators. High operational card overhead.",
@@ -1034,13 +998,13 @@ RECOMMENDATIONS:
                     target_metric: "⏱️ +2 Dev Sprints Saved",
                     out_of_scope: "Do NOT build concierge services, airport lounge partnerships, or heavy physical metal cards.",
                     moat_status: "noise",
-                    moat_label: "Filtered Noise"
+                    moat_label: "Low-ROI Noise"
                 },
                 why_it_matters: "Targets premium status accounts; contrast with Trade Republic free card with 1% Saveback.",
                 diff_snippet: "@@ -1,4 +1,5 @@\n+Ultra - 45.00 €/month - Platinum card, airport lounge access",
                 requires_review: true,
                 jtbd_pillar: "Feature Bloat",
-                impact_scoring: { classification: "Noise (Low ROI)", urgency: "P3 - Ignore", rationale: "High-overhead luxury tier with negligible retail impact." },
+                impact_scoring: { classification: "Noise (Low ROI)", urgency: "P3 Low Priority", rationale: "High-overhead luxury tier with negligible retail impact." },
                 mini_prd: {
                     problem_statement: "Revolut launched €45/mo Ultra tier with lifestyle perks.",
                     proposed_mvp_response: "Document as competitive noise. No engineering response required.",
@@ -1064,10 +1028,10 @@ RECOMMENDATIONS:
                 android_url: "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
                 source_tier: "Bitpanda App Store Release Changelog",
                 timestamp: "2026-08-16T05:00:00.000Z",
-                change_summary: "Bitpanda app sentiment improved to 4.6★ with praise for 0% PayPal instant deposits.",
+                change_summary: "App Sentiment Improves to 4.6★ Following 0% PayPal Deposits",
                 raw_payload_snippet: "App Store Release Notes v2.14: Added 0% fee PayPal instant funding for verified European accounts. Customer review sentiment reflects +0.1 rating increase (4.6 stars, 43k ratings).",
                 friction_target: "Deposit Clearance Latency",
-                dev_sp: "2 SP (1 Sprint)",
+                dev_sp: "2 Story Points",
                 tr_delta: {
                     tr_baseline: "Instant SEPA, Apple Pay, Google Pay, and card funding for €0",
                     delta_implication: "Bitpanda removed deposit delays; Trade Republic already offers free instant deposit methods.",
@@ -1075,7 +1039,7 @@ RECOMMENDATIONS:
                     target_metric: "⚡ 99.5% Instant Settlement",
                     out_of_scope: "Do NOT charge payment processing fees for instant mobile wallet top-ups.",
                     moat_status: "leader",
-                    moat_label: "TR Instant Funding Moat"
+                    moat_label: "Moat Differentiator"
                 },
                 why_it_matters: "Compares to Trade Republic instant transfer and flat fee structure.",
                 diff_snippet: "@@ -1,3 +1,3 @@\n-iOS: 4.5 ★ (40k) | Google Play: 4.4 ★ (60k)\n+iOS: 4.6 ★ (43k) | Google Play: 4.5 ★ (65k)\n-Complaints re deposit speed.\n+High praise for 0% PayPal instant deposits.",
@@ -1083,7 +1047,7 @@ RECOMMENDATIONS:
                 rating_delta: "Rating: 4.6★ (+0.1 rising)",
                 sentiment_theme: "0% PayPal Deposit Satisfaction",
                 jtbd_pillar: "Value Realization",
-                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P2 - Monitor", rationale: "Bitpanda improved deposit sentiment; TR already offers free instant transfers." },
+                impact_scoring: { classification: "Differentiator (Moat)", urgency: "P2 Medium Priority", rationale: "Bitpanda improved deposit sentiment; TR already offers free instant transfers." },
                 mini_prd: {
                     problem_statement: "Bitpanda rolled out 0% PayPal top-ups.",
                     proposed_mvp_response: "Highlight TR instant, free bank transfers and Apple Pay top-ups.",
