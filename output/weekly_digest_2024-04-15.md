@@ -14,7 +14,7 @@
 ## 2. Detailed Signal Lineage & Diff Verification
 
 ### N26 — N26 updated pricing: changed from [Instant Savings: 1.26% p.a.] to [Instant Savings: 3.00% p.a.].
-- **Timestamp**: `2026-08-17T19:41:39.648Z`
+- **Timestamp**: `2026-08-17T20:12:38.152Z`
 - **Source**: [https://n26.com/en-de/plans](https://n26.com/en-de/plans) (Tier 1)
 - **Strategic Impact**: Impacts deposit competition vs Trade Republic's 3.75% p.a. on uninvested cash up to 50,000 EUR.
 
@@ -35,7 +35,7 @@
 ```
 
 ### Scalable Capital — Scalable Capital updated pricing: changed from [4.00% p.a. interest on cash up to 1,000,000 € with Baader Bank] to [3.75% p.a. interest on cash up to 1,000,000 € with Baader Bank].
-- **Timestamp**: `2026-08-17T19:41:39.653Z`
+- **Timestamp**: `2026-08-17T20:12:38.157Z`
 - **Source**: [https://de.scalable.capital/en/pricing](https://de.scalable.capital/en/pricing) (Tier 1)
 - **Strategic Impact**: Impacts deposit competition vs Trade Republic's 3.75% p.a. on uninvested cash up to 50,000 EUR.
 
