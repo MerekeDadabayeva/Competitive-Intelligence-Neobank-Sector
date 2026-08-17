@@ -274,16 +274,26 @@
                 </div>
 
                 <!-- 4. Verified Primary Diff & Provenance -->
-                <div class="drawer-section">
+                <div class="drawer-section" id="drawer-section-provenance">
                     <div class="section-title-row">
-                        <h3>4. Verified Primary Diff & Grounding</h3>
+                        <h3>4. Verified Primary Source & AST Diff</h3>
                         <span class="section-pill">Zero Hallucinations</span>
                     </div>
                     <div class="spec-block">
+                        <div class="spec-subhead">Canonical Source Document</div>
+                        <div id="drawer-source-doc" class="spec-text" style="font-weight:600;margin-bottom:8px;color:#0f172a;"></div>
+
+                        <div class="spec-subhead">Raw Ingested Text Payload (Grounding)</div>
+                        <p id="drawer-raw-payload" class="spec-code" style="margin-bottom:10px;display:block;white-space:pre-wrap;"></p>
+
+                        <div class="spec-subhead">Unified AST Character Diff (Lines Added/Removed)</div>
                         <div class="diff-view-box" id="drawer-diff-box"></div>
+                        
                         <div class="provenance-meta-row">
                             <span id="drawer-hash" class="hash-tag"></span>
-                            <a id="drawer-primary-link" href="#" target="_blank" class="primary-link-btn">Verify Primary Source ↗</a>
+                            <a id="drawer-primary-link" href="#" target="_blank" rel="noopener noreferrer" class="primary-link-btn">
+                                🌐 Open Official Portal ↗
+                            </a>
                         </div>
                     </div>
                 </div>

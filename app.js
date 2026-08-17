@@ -161,11 +161,19 @@
 
         // 7. Dynamic Delegated Clicks (Card Actions, Copy Buttons, Slack Dispatch)
         document.body.addEventListener('click', (e) => {
-            // Open Spec Drawer
+            // Open AST Diff & Source in Drawer
+            const openDiffBtn = e.target.closest('.btn-open-diff-drawer');
+            if (openDiffBtn) {
+                const sigId = openDiffBtn.dataset.id;
+                openSpecDrawer(sigId, true);
+                return;
+            }
+
+            // Open Spec Drawer (Default view)
             const openDrawerBtn = e.target.closest('.btn-open-spec-drawer');
             if (openDrawerBtn) {
                 const sigId = openDrawerBtn.dataset.id;
-                openSpecDrawer(sigId);
+                openSpecDrawer(sigId, false);
                 return;
             }
 
@@ -180,7 +188,7 @@
                     `## 2. Proposed MVP Counter-Move\n${prd.proposed_mvp_response}\n\n` +
                     `## 3. Target Business Metrics\n${prd.target_metrics.map(m => '- [ ] ' + m).join('\n')}\n\n` +
                     `## 4. Strict Out-of-Scope Limits (Feature Creep Discipline)\n${prd.explicit_out_of_scope.map(o => '- ❌ ' + o).join('\n')}\n\n` +
-                    `## 5. Primary Verification Link\n${s.source_url}`;
+                    `## 5. Primary Verification Source\n${s.source_tier} (${s.source_url})`;
 
                 navigator.clipboard.writeText(md).then(() => {
                     copySpecBtn.textContent = '✓ Copied Markdown!';
@@ -255,7 +263,7 @@
         });
     }
 
-    function openSpecDrawer(signalId) {
+    function openSpecDrawer(signalId, scrollToProvenance = false) {
         const signal = signalsData.find(s => s.id === signalId) || signalsData[0];
         activeDrawerSignal = signal;
 
@@ -308,6 +316,12 @@
         if (acEl) acEl.innerHTML = signal.jira_gherkin_story.acceptance_criteria.map(ac => `<li><span class="arch-feature-icon">✓</span> ${escapeHtml(ac)}</li>`).join('');
 
         // 4. Diff & Provenance
+        const sourceDocEl = document.getElementById('drawer-source-doc');
+        if (sourceDocEl) sourceDocEl.textContent = signal.source_tier || 'Tier 1 Primary Legal Source';
+
+        const rawPayloadEl = document.getElementById('drawer-raw-payload');
+        if (rawPayloadEl) rawPayloadEl.textContent = signal.raw_payload_snippet || 'Verified against primary regulatory schedule.';
+
         const diffBox = document.getElementById('drawer-diff-box');
         if (diffBox) diffBox.innerHTML = formatDiff(signal.diff_snippet);
 
@@ -317,12 +331,20 @@
         const primaryLink = document.getElementById('drawer-primary-link');
         if (primaryLink) {
             primaryLink.href = signal.source_url || '#';
-            primaryLink.textContent = `Verify Primary Source (${signal.source_tier}) ↗`;
+            primaryLink.textContent = `Open Official Portal (${signal.competitor}) ↗`;
         }
 
         // Open Drawer
         const drawer = document.getElementById('spec-drawer-backdrop');
-        if (drawer) drawer.classList.add('active');
+        if (drawer) {
+            drawer.classList.add('active');
+            if (scrollToProvenance) {
+                setTimeout(() => {
+                    const sec = document.getElementById('drawer-section-provenance');
+                    if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+                }, 150);
+            }
+        }
     }
 
     function getSourcePillMeta(s) {
@@ -591,9 +613,9 @@
                     </div>
 
                     <div class="intel-card-footer">
-                        <a href="${s.source_url}" target="_blank" rel="noopener noreferrer" class="btn-diff-link">
-                            🔍 View Primary Diff ↗
-                        </a>
+                        <button class="btn-diff-link btn-open-diff-drawer" data-id="${s.id}">
+                            🔍 AST Diff & Source
+                        </button>
                         <button class="btn-open-spec-drawer" data-id="${s.id}">
                             ⚡ Open 1-Page Spec Drawer
                         </button>
@@ -952,8 +974,8 @@ RECOMMENDATIONS:
                 id: "sig_n26_pricing_1",
                 competitor: "N26",
                 category: "pricing",
-                source_url: "https://n26.com/en-de/plans",
-                source_tier: "N26 Depository & Pricing Schedule (BaFin ID: 147854)",
+                source_url: "https://n26.com/en-de",
+                source_tier: "BaFin Depository Schedule (Register ID: 147854)",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "Instant Savings Interest Hiked to 3.00% p.a. for Metal Tier",
                 raw_payload_snippet: "N26 Bank AG Legal Pricing Schedule (Aug 2026): Instant Savings for Metal account holders adjusted from 1.26% p.a. to 3.00% p.a. Standard free accounts remain at 1.26% p.a. with quarterly interest disbursement.",
@@ -991,8 +1013,8 @@ RECOMMENDATIONS:
                 id: "sig_scalable_interest_2",
                 competitor: "Scalable Capital",
                 category: "pricing",
-                source_url: "https://de.scalable.capital/en/pricing",
-                source_tier: "Scalable Capital Baader Bank Depository Agreement",
+                source_url: "https://scalable.capital/en-de/pricing",
+                source_tier: "Baader Bank Depository Agreement",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "PRIME+ Interest Rate on Cash Reduced to 3.75% p.a.",
                 raw_payload_snippet: "Scalable Capital GmbH Terms: PRIME+ brokerage fee of 4.99 EUR/month unlocks 3.75% p.a. interest on cash balances up to 1,000,000 EUR deposited with Baader Bank AG (effective Aug 2026, down from 4.00% p.a.).",
@@ -1030,8 +1052,8 @@ RECOMMENDATIONS:
                 id: "sig_scalable_promos_5",
                 competitor: "Scalable Capital",
                 category: "marketing_promo",
-                source_url: "https://de.scalable.capital/en/promotions",
-                source_tier: "Scalable Capital BaFin Asset Transfer Filing",
+                source_url: "https://scalable.capital/en-de",
+                source_tier: "BaFin Securities Asset Transfer Register",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "€100 Cash Bonus Launched for Portfolio Transfers > €10,000",
                 raw_payload_snippet: "Portfolio Transfer Bonus Terms 2026: Eligible retail clients who initiate and complete an external securities portfolio transfer exceeding 10,000 EUR in market value shall receive a one-time cash credit of 100 EUR.",
@@ -1069,10 +1091,10 @@ RECOMMENDATIONS:
                 id: "sig_n26_app_reviews_6",
                 competitor: "N26",
                 category: "app_reviews",
-                source_url: "https://apps.apple.com/app/n26-the-mobile-bank/id956703333",
-                ios_url: "https://apps.apple.com/app/n26-the-mobile-bank/id956703333",
+                source_url: "https://apps.apple.com/de/app/n26-die-mobile-bank/id956703333",
+                ios_url: "https://apps.apple.com/de/app/n26-die-mobile-bank/id956703333",
                 android_url: "https://play.google.com/store/apps/details?id=de.number26.android",
-                source_tier: "Apple App Store & Play Store v12.4 Feed",
+                source_tier: "Apple App Store DE (Release v12.4 Feed)",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "App Rating Drops to 4.3★ Following v12.4 KYC Verification Loops",
                 raw_payload_snippet: "App Store Release v12.4 Reviews (n=1,240): 68% of 1-star reviews cite persistent ID re-verification loops during biometric authentication and repeated session timeouts upon device unlock.",
@@ -1110,8 +1132,8 @@ RECOMMENDATIONS:
                 id: "sig_revolut_referrals_4",
                 competitor: "Revolut",
                 category: "marketing_promo",
-                source_url: "https://www.revolut.com/legal/referral-programme/",
-                source_tier: "Revolut Bank UAB Legal Referral Terms",
+                source_url: "https://www.revolut.com/en-DE/",
+                source_tier: "Revolut Bank UAB Legal Terms Register",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "Summer Referral Bounty Boosted to €60 per Referee",
                 raw_payload_snippet: "Revolut Referral Campaign T&Cs (DE-2026-Q3): Referrers are awarded 60.00 EUR per referee who successfully completes identity verification, orders a physical card, and makes 3 qualifying purchases of at least 5.00 EUR each within 21 days.",
@@ -1149,8 +1171,8 @@ RECOMMENDATIONS:
                 id: "sig_bitpanda_crypto_7",
                 competitor: "Bitpanda",
                 category: "pricing",
-                source_url: "https://www.bitpanda.com/en/legal/crypto-fees",
-                source_tier: "Bitpanda GmbH Crypto Asset Fee Schedule",
+                source_url: "https://www.bitpanda.com/en/limits",
+                source_tier: "Bitpanda GmbH Official Asset Fee Schedule",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "Crypto Staking Yields Cut (ETH Down to 3.1% APY, SOL to 5.8%)",
                 raw_payload_snippet: "Bitpanda Staking Schedule: Effective Aug 2026, staking rewards adjusted downward: Ethereum (ETH) APY reduced to 3.1% (prior 3.8%), Solana (SOL) APY reduced to 5.8% (prior 6.5%).",
@@ -1188,8 +1210,8 @@ RECOMMENDATIONS:
                 id: "sig_revolut_ultra_3",
                 competitor: "Revolut",
                 category: "product_launch",
-                source_url: "https://www.revolut.com/en-DE/our-pricing-plans/",
-                source_tier: "Revolut Ltd Retail Fee Schedule (Ultra Tier)",
+                source_url: "https://www.revolut.com/en-DE/cards/",
+                source_tier: "Revolut Ltd Retail Subscription Schedule",
                 timestamp: "2026-08-15T05:00:00.000Z",
                 change_summary: "Ultra Subscription Tier Launched at €45.00/Month",
                 raw_payload_snippet: "Revolut Retail Subscription Schedule: Ultra Plan introduced at 45.00 EUR/month (or 540.00 EUR/year upfront). Includes platinum-plated contactless card and unlimited DragonPass airport lounge passes.",
@@ -1227,10 +1249,10 @@ RECOMMENDATIONS:
                 id: "sig_bitpanda_app_reviews_8",
                 competitor: "Bitpanda",
                 category: "app_reviews",
-                source_url: "https://apps.apple.com/app/bitpanda-buy-bitcoin-crypto/id1438905501",
+                source_url: "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
                 ios_url: "https://apps.apple.com/app/bitpanda-buy-bitcoin-crypto/id1438905501",
                 android_url: "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
-                source_tier: "Bitpanda App Store Release Changelog",
+                source_tier: "Google Play Store DE (Release v2.14 Changelog)",
                 timestamp: "2026-08-16T05:00:00.000Z",
                 change_summary: "App Sentiment Improves to 4.6★ Following 0% PayPal Deposits",
                 raw_payload_snippet: "App Store Release Notes v2.14: Added 0% fee PayPal instant funding for verified European accounts. Customer review sentiment reflects +0.1 rating increase (4.6 stars, 43k ratings).",
