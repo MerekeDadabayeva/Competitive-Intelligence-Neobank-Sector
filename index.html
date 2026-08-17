@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neobank Competitive Intelligence Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-branding">
+            <h1>Competitive Intelligence — Neobank Sector</h1>
+            <div class="dataset-pill">Active Feed · Week of Aug 17, 2026</div>
+        </div>
+        <div class="stats-container">
+            <div class="stat-box">
+                <span class="stat-label">Total</span>
+                <span class="stat-value" id="stat-total">0</span>
+            </div>
+            <div class="stat-box stat-auto">
+                <span class="stat-label">Auto-Published</span>
+                <span class="stat-value" id="stat-auto">0</span>
+            </div>
+            <div class="stat-box stat-approved">
+                <span class="stat-label">PM Approved</span>
+                <span class="stat-value" id="stat-approved">0</span>
+            </div>
+            <div class="stat-box stat-pending">
+                <span class="stat-label">Pending Review</span>
+                <span class="stat-value" id="stat-pending">0</span>
+            </div>
+            <div class="stat-box stat-rejected">
+                <span class="stat-label">Rejected</span>
+                <span class="stat-value" id="stat-rejected">0</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="filter-section">
+                <h3>Filters</h3>
+                
+                <div class="filter-group">
+                    <h4>Competitor</h4>
+                    <label><input type="checkbox" name="competitor" value="N26" checked> <span class="dot dot-n26"></span> N26</label>
+                    <label><input type="checkbox" name="competitor" value="Revolut" checked> <span class="dot dot-revolut"></span> Revolut</label>
+                    <label><input type="checkbox" name="competitor" value="Scalable Capital" checked> <span class="dot dot-scalable"></span> Scalable Capital</label>
+                    <label><input type="checkbox" name="competitor" value="Bitpanda" checked> <span class="dot dot-bitpanda"></span> Bitpanda</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Category</h4>
+                    <label><input type="checkbox" name="category" value="pricing" checked> Pricing & Fees</label>
+                    <label><input type="checkbox" name="category" value="product_launch" checked> Product Launch</label>
+                    <label><input type="checkbox" name="category" value="marketing_promo" checked> Marketing & Promos</label>
+                    <label><input type="checkbox" name="category" value="app_reviews" checked> App Store Reviews</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>JTBD Strategic Pillar</h4>
+                    <label><input type="checkbox" name="jtbd" value="Value Realization" checked> 💎 Value Realization</label>
+                    <label><input type="checkbox" name="jtbd" value="Conversion / Monetization Hooks" checked> 🎣 Conversion / Hooks</label>
+                    <label><input type="checkbox" name="jtbd" value="Onboarding Friction" checked> 🚪 Onboarding Friction</label>
+                    <label><input type="checkbox" name="jtbd" value="Feature Bloat" checked> 🎈 Feature Bloat</label>
+                    <label><input type="checkbox" name="jtbd" value="Regulatory Compliance" checked> ⚖️ Regulatory</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Strategic Impact Score</h4>
+                    <label><input type="checkbox" name="impact" value="Defensive Need (Parity)" checked> 🛡️ Defensive (Parity)</label>
+                    <label><input type="checkbox" name="impact" value="Differentiator (Moat)" checked> 🏰 Moat (Advantage)</label>
+                    <label><input type="checkbox" name="impact" value="Noise (Low ROI)" checked> 🔇 Noise (Low ROI)</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Status</h4>
+                    <label><input type="checkbox" name="status" value="auto_published" checked> Auto-Published</label>
+                    <label><input type="checkbox" name="status" value="staged_review" checked> Staged Review</label>
+                    <label><input type="checkbox" name="status" value="approved" checked> Approved</label>
+                    <label><input type="checkbox" name="status" value="rejected" checked> Rejected</label>
+                </div>
+            </div>
+
+            <div class="baseline-section">
+                <h3>Trade Republic Baseline</h3>
+                <div id="baseline-content" class="baseline-content">
+                    Loading...
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Prominent Executive Briefing Hero Card (Top of main area) -->
+            <section class="executive-brief-hero" id="executive-brief-hero">
+                <div class="brief-hero-header">
+                    <div class="brief-title-area">
+                        <span class="brief-badge">⚡ CPO Executive Brief</span>
+                        <h2>Weekly Competitive Intelligence Brief</h2>
+                        <span class="brief-date-tag">Week of Aug 17, 2026</span>
+                    </div>
+                    <div class="brief-controls">
+                        <div class="format-toggle" id="brief-format-toggle">
+                            <button class="format-btn active" data-format="summary">Visual Brief</button>
+                            <button class="format-btn" data-format="slack">Slack Format</button>
+                            <button class="format-btn" data-format="email">Email Format</button>
+                        </div>
+                        <button class="btn-copy-brief" id="hero-copy-brief-btn">📋 Copy</button>
+                        <button class="btn-toggle-view" id="collapse-brief-btn">▲ Collapse</button>
+                    </div>
+                </div>
+                <div class="brief-hero-content" id="brief-hero-content">
+                    Loading executive brief...
+                </div>
+            </section>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="feed">Signal Feed (<span id="tab-feed-count">0</span>)</button>
+                <button class="tab-btn" data-tab="review">Review Queue <span id="tab-review-badge" class="tab-badge">0</span></button>
+                <button class="tab-btn" data-tab="parity">🎯 Parity Matrix (Moat Radar)</button>
+                <button class="tab-btn" data-tab="takeaways">⚡ Actionable Takeaways (Decision Engine)</button>
+            </div>
+
+            <div class="tab-content active" id="tab-feed">
+                <div id="signals-container" class="signals-container">
+                    Loading signals...
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-review">
+                <div id="review-container" class="signals-container">
+                    Loading review queue...
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-parity">
+                <div id="parity-container" class="parity-container">
+                    Loading feature parity matrix...
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-takeaways">
+                <div id="takeaways-container" class="takeaways-container">
+                    Loading strategic decision engine...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        Pipeline v1 — Precision-tested on synthetic fixtures · Real-world live validation pending
+    </footer>
+
+    <!-- 1-Click "Spec-It" Mini-PRD Modal -->
+    <div class="modal-overlay" id="spec-modal">
+        <div class="modal-content modal-prd">
+            <div class="modal-header">
+                <div>
+                    <span class="prd-kicker">1-Click Spec-It · Product Requirements</span>
+                    <h3 id="spec-modal-title">Mini-PRD Response Spec</h3>
+                </div>
+                <button class="close-modal" id="close-spec-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="prd-section">
+                    <h4>Problem Statement & Strategic Context</h4>
+                    <p id="spec-problem-stmt" class="prd-text"></p>
+                </div>
+                <div class="prd-section">
+                    <h4>Proposed MVP Response</h4>
+                    <div id="spec-proposed-mvp" class="prd-highlight-box"></div>
+                </div>
+                <div class="prd-grid-2">
+                    <div class="prd-section">
+                        <h4>🎯 Target Metrics (Success Criteria)</h4>
+                        <ul id="spec-target-metrics" class="prd-metrics-list"></ul>
+                    </div>
+                    <div class="prd-section">
+                        <h4>🚫 Explicit Out-of-Scope (Scope Creep Guardrails)</h4>
+                        <ul id="spec-out-of-scope" class="prd-scope-list"></ul>
+                    </div>
+                </div>
+                <div class="modal-actions-bar">
+                    <button class="btn-copy-modal" id="copy-spec-btn">📋 Copy Mini-PRD (Markdown)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sprint-Ready Jira Gherkin Story Modal -->
+    <div class="modal-overlay" id="jira-modal">
+        <div class="modal-content modal-jira">
+            <div class="modal-header">
+                <div>
+                    <span class="jira-kicker">Sprint-Ready Engineering Spec</span>
+                    <h3 id="jira-modal-title">Jira User Story & Gherkin Acceptance</h3>
+                </div>
+                <button class="close-modal" id="close-jira-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="jira-section">
+                    <span class="jira-label">Epic / Title:</span>
+                    <div id="jira-epic-title" class="jira-epic-box"></div>
+                </div>
+                <div class="jira-section">
+                    <span class="jira-label">User Story:</span>
+                    <div id="jira-user-story" class="jira-story-box"></div>
+                </div>
+                <div class="jira-section">
+                    <span class="jira-label">Gherkin Acceptance Scenarios (Given/When/Then):</span>
+                    <pre id="jira-gherkin-box" class="jira-code-box"></pre>
+                </div>
+                <div class="jira-section">
+                    <span class="jira-label">Definition of Done (Acceptance Criteria):</span>
+                    <ul id="jira-ac-list" class="jira-ac-list"></ul>
+                </div>
+                <div class="modal-actions-bar">
+                    <button class="btn-copy-modal" id="copy-jira-btn">📋 Copy for Jira / Linear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
