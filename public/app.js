@@ -46,11 +46,38 @@
     }
 
     function setupEventListeners() {
-        // 1. Sidebar Navigation Tabs (Radar | Brief | Integrity)
-        document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
+        // 1. Sidebar Competitor Buttons (Primary Nav Anchor)
+        document.querySelectorAll('.sidebar-competitor-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const comp = e.currentTarget.dataset.competitor;
+                document.querySelectorAll('.sidebar-competitor-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                selectedCompetitor = comp;
+
+                // Auto-switch to Live Signal Feed view
+                const radarNavBtn = document.querySelector('.sidebar-view-btn[data-tab="radar"]');
+                if (radarNavBtn) {
+                    document.querySelectorAll('.sidebar-view-btn').forEach(b => b.classList.remove('active'));
+                    radarNavBtn.classList.add('active');
+                }
+                document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+                const radarPanel = document.getElementById('view-radar');
+                if (radarPanel) radarPanel.classList.add('active');
+
+                // Update Header Titles & Badge
+                updateCompetitorHeader(comp);
+
+                renderCardsGrid();
+                renderKpisForCompetitor(comp);
+            });
+        });
+
+        // 2. Sidebar Report & View Buttons (Radar | Brief | Integrity)
+        document.querySelectorAll('.sidebar-view-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const targetTab = e.currentTarget.dataset.tab;
-                document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.sidebar-view-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
 
                 e.currentTarget.classList.add('active');
@@ -59,39 +86,24 @@
 
                 // Update View Title in Topbar
                 const titleEl = document.getElementById('active-view-title');
-                const subEl = document.querySelector('.topbar-subtitle');
+                const badgeEl = document.getElementById('active-competitor-badge');
+                const subEl = document.getElementById('active-view-subtitle');
+
                 if (targetTab === 'radar') {
-                    if (titleEl) titleEl.textContent = 'Live Intelligence Radar';
-                    if (subEl) subEl.textContent = 'Autonomous Competitor Delta Synthesis vs European Neobanks';
+                    updateCompetitorHeader(selectedCompetitor);
                 } else if (targetTab === 'brief') {
                     if (titleEl) titleEl.textContent = 'Weekly Executive Brief & Strategy';
-                    if (subEl) subEl.textContent = 'Synthesized CPO Memo, Moat Parity Matrix & What-If Simulator';
+                    if (badgeEl) badgeEl.textContent = 'CPO Intelligence Memo';
+                    if (subEl) subEl.textContent = 'Synthesized strategic executive brief, competitive parity matrix, and What-If simulator';
                 } else if (targetTab === 'integrity') {
-                    if (titleEl) titleEl.textContent = 'Data Integrity & Pipeline Architecture';
-                    if (subEl) subEl.textContent = 'Zero-Extrapolation AST Diff Extraction & SHA-256 Provenance';
+                    if (titleEl) titleEl.textContent = 'Data Integrity & AST Pipeline';
+                    if (badgeEl) badgeEl.textContent = 'Zero-Extrapolation Gateway';
+                    if (subEl) subEl.textContent = 'Deterministic AST unified diff extraction, type-safe Zod validation, and SHA-256 grounding hashes';
                 }
             });
         });
 
-        // 2. Sidebar Strategic Pillar Filter Buttons
-        document.querySelectorAll('.sidebar-pillar-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const val = e.currentTarget.dataset.pillar;
-                document.querySelectorAll('.sidebar-pillar-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                selectedPillar = val;
-                
-                // If not currently on Radar view, switch to Radar
-                const radarNavBtn = document.querySelector('.sidebar-nav-btn[data-tab="radar"]');
-                if (radarNavBtn && !radarNavBtn.classList.contains('active')) {
-                    radarNavBtn.click();
-                }
-
-                renderCardsGrid();
-            });
-        });
-
-        // 3. Competitor & Impact Filter Chips
+        // 3. Quick Filter Chips (Impact Triage & Strategic Pillars)
         document.querySelectorAll('.filter-chip').forEach(chip => {
             chip.addEventListener('click', (e) => {
                 const type = e.currentTarget.dataset.filterType;
@@ -100,8 +112,8 @@
                 document.querySelectorAll(`.filter-chip[data-filter-type="${type}"]`).forEach(c => c.classList.remove('active'));
                 e.currentTarget.classList.add('active');
 
-                if (type === 'competitor') selectedCompetitor = val;
                 if (type === 'impact') selectedImpact = val;
+                if (type === 'pillar') selectedPillar = val;
 
                 renderCardsGrid();
             });
@@ -343,12 +355,183 @@
         return { text: '[PARITY: MONITOR]', className: 'badge-threat' };
     }
 
+    function updateCompetitorHeader(comp) {
+        const titleEl = document.getElementById('active-view-title');
+        const badgeEl = document.getElementById('active-competitor-badge');
+        const subEl = document.getElementById('active-view-subtitle');
+
+        if (comp === 'ALL') {
+            if (titleEl) titleEl.textContent = 'All Competitors';
+            if (badgeEl) badgeEl.textContent = 'All 4 Neobanks';
+            if (subEl) subEl.textContent = 'Autonomous Competitor Delta Synthesis vs Trade Republic Baseline';
+        } else if (comp === 'N26') {
+            if (titleEl) titleEl.textContent = 'N26 Competitive Radar';
+            if (badgeEl) badgeEl.textContent = 'N26 Bank AG (2 Signals)';
+            if (subEl) subEl.textContent = 'Tracking Instant Savings yield hike (3.00%) and iOS v12.4 KYC drop-off';
+        } else if (comp === 'Scalable Capital') {
+            if (titleEl) titleEl.textContent = 'Scalable Capital Radar';
+            if (badgeEl) badgeEl.textContent = 'Scalable GmbH (2 Signals)';
+            if (subEl) subEl.textContent = 'Tracking PRIME+ yield adjustment (3.75%) and €100 portfolio poaching bonus';
+        } else if (comp === 'Revolut') {
+            if (titleEl) titleEl.textContent = 'Revolut Radar';
+            if (badgeEl) badgeEl.textContent = 'Revolut Ltd (2 Signals)';
+            if (subEl) subEl.textContent = 'Tracking €60 referral CAC bounty escalation and €45/mo Ultra vanity tier';
+        } else if (comp === 'Bitpanda') {
+            if (titleEl) titleEl.textContent = 'Bitpanda Radar';
+            if (badgeEl) badgeEl.textContent = 'Bitpanda GmbH (2 Signals)';
+            if (subEl) subEl.textContent = 'Tracking staking yield compression (ETH 3.1%) and 0% PayPal instant deposits';
+        }
+    }
+
+    function renderKpisForCompetitor(comp) {
+        const container = document.getElementById('kpi-strip-container');
+        if (!container) return;
+
+        if (comp === 'N26') {
+            container.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Yield Margin Spread</div>
+                    <div class="kpi-val text-emerald">+75 bps Lead</div>
+                    <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Monthly Cost Delta</div>
+                    <div class="kpi-val text-blue">€0 vs €16.90</div>
+                    <div class="kpi-sub">TR free vs N26 Metal subscription</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">KYC Verification Gap</div>
+                    <div class="kpi-val text-indigo">3m vs 4.3★</div>
+                    <div class="kpi-sub">Arbitrage on N26 v12.4 login bugs</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Tactical Counter-Move</div>
+                    <div class="kpi-val text-purple">Acquisition Ad</div>
+                    <div class="kpi-sub">Contrast yield & frictionless onboarding</div>
+                </div>
+            `;
+        } else if (comp === 'Scalable Capital') {
+            container.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Annual Fee Spread</div>
+                    <div class="kpi-val text-emerald">€0 vs €59.88</div>
+                    <div class="kpi-sub">TR Free vs Scalable PRIME+ subscription</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Protected Custody AUC</div>
+                    <div class="kpi-val text-blue">€24.2M</div>
+                    <div class="kpi-sub">Defending >€10k accounts vs €100 bounty</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">3-Yr Fee Advantage</div>
+                    <div class="kpi-val text-indigo">+€300 Saved</div>
+                    <div class="kpi-sub">Flat €1 trading vs % volume fees</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Tactical Counter-Move</div>
+                    <div class="kpi-val text-purple">VIP Fee Summary</div>
+                    <div class="kpi-sub">Retain >€10k accounts with value clarity</div>
+                </div>
+            `;
+        } else if (comp === 'Revolut') {
+            container.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Upfront CAC Pressure</div>
+                    <div class="kpi-val text-rose">€60 Bounty</div>
+                    <div class="kpi-sub">Revolut referral cash payout spike</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">TR Retention Weapon</div>
+                    <div class="kpi-val text-emerald">1% Saveback</div>
+                    <div class="kpi-sub">Invested directly into ETF savings plans</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Dev Capacity Protected</div>
+                    <div class="kpi-val text-purple">+2 Sprints</div>
+                    <div class="kpi-sub">Revolut €45/mo Ultra gimmick filtered</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Tactical Counter-Move</div>
+                    <div class="kpi-val text-blue">Saveback Push</div>
+                    <div class="kpi-sub">Payroll salary multiplier (+0.5%)</div>
+                </div>
+            `;
+        } else if (comp === 'Bitpanda') {
+            container.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Trading Fee Moat</div>
+                    <div class="kpi-val text-emerald">€1.00 Flat</div>
+                    <div class="kpi-sub">TR transparent fee vs % spreads</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Staking Yield Trend</div>
+                    <div class="kpi-val text-amber">-0.7% APY</div>
+                    <div class="kpi-sub">Bitpanda ETH staking cut to 3.1%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Deposit Speed Parity</div>
+                    <div class="kpi-val text-blue">Instant €0</div>
+                    <div class="kpi-sub">Apple/Google Pay vs PayPal 0%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Tactical Counter-Move</div>
+                    <div class="kpi-val text-indigo">Crypto Discovery</div>
+                    <div class="kpi-sub">Promote €0 crypto automated plans</div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Yield Spread Moat</div>
+                    <div class="kpi-val text-emerald">+75 bps Lead</div>
+                    <div class="kpi-sub">3.75% TR vs 3.00% N26 (€0 fee)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Protected Custody AUC</div>
+                    <div class="kpi-val text-blue">€24.2M</div>
+                    <div class="kpi-sub">Scalable €100 poaching defense</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Acquisition Velocity Lead</div>
+                    <div class="kpi-val text-indigo">3 Min KYC</div>
+                    <div class="kpi-sub">vs N26 4.3★ verification loop churn</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Sprint Capacity Protected</div>
+                    <div class="kpi-val text-purple">+2 Sprints</div>
+                    <div class="kpi-sub">Revolut Ultra €45/mo noise rejected</div>
+                </div>
+            `;
+        }
+    }
+
     function render() {
         renderCardsGrid();
         renderBriefView();
         renderParityTable();
         renderSimulatorView();
         renderIntegrityView();
+        updateCompetitorCounts();
+    }
+
+    function updateCompetitorCounts() {
+        const cAll = signalsData.length;
+        const cN26 = signalsData.filter(s => s.competitor === 'N26').length;
+        const cScalable = signalsData.filter(s => s.competitor === 'Scalable Capital').length;
+        const cRevolut = signalsData.filter(s => s.competitor === 'Revolut').length;
+        const cBitpanda = signalsData.filter(s => s.competitor === 'Bitpanda').length;
+
+        const elAll = document.getElementById('count-all');
+        const elN26 = document.getElementById('count-n26');
+        const elScalable = document.getElementById('count-scalable');
+        const elRevolut = document.getElementById('count-revolut');
+        const elBitpanda = document.getElementById('count-bitpanda');
+
+        if (elAll) elAll.textContent = cAll;
+        if (elN26) elN26.textContent = cN26;
+        if (elScalable) elScalable.textContent = cScalable;
+        if (elRevolut) elRevolut.textContent = cRevolut;
+        if (elBitpanda) elBitpanda.textContent = cBitpanda;
     }
 
     function renderCardsGrid() {
@@ -376,10 +559,6 @@
                 return combined.includes(searchQuery);
             });
         }
-
-        // Update sidebar count badge
-        const sidebarCount = document.getElementById('sidebar-feed-count');
-        if (sidebarCount) sidebarCount.textContent = filtered.length;
 
         if (!filtered.length) {
             container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:40px;text-align:center;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;">No competitor signals match your active filters.</div>`;

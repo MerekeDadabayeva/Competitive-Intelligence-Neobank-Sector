@@ -4,7 +4,7 @@
 Total Staged Items: **1**
 
 ## [Item 1] Revolut — PRODUCT_LAUNCH
-- **Signal ID**: `sig_revolut_ultra_1786999587711`
+- **Signal ID**: `sig_revolut_ultra_1786999746028`
 - **Source**: [https://www.revolut.com/en-DE/our-pricing-plans/](https://www.revolut.com/en-DE/our-pricing-plans/) (Tier 1)
 - **Escalation Reason**: *Non-pricing category (product_launch) requires PM validation.*
 - **Draft Summary**: Revolut updated product_launch: changed from [Metal - 13.99 €/month] to [Metal - 13.99 €/month; Ultra - 45.00 €/month - Platinum-plated card, unlimited airport lounge access].
@@ -27,7 +27,7 @@ Total Staged Items: **1**
 ```
 
 **PM Triage Decision**:
-- [ ] **APPROVE**: `npm run triage -- --approve sig_revolut_ultra_1786999587711`
-- [ ] **REJECT / NOISE**: `npm run triage -- --reject sig_revolut_ultra_1786999587711`
+- [ ] **APPROVE**: `npm run triage -- --approve sig_revolut_ultra_1786999746028`
+- [ ] **REJECT / NOISE**: `npm run triage -- --reject sig_revolut_ultra_1786999746028`
 
 ---
