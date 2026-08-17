@@ -1,0 +1,380 @@
+[
+  {
+    "id": "sig_n26_pricing_1786938650521",
+    "competitor": "N26",
+    "category": "pricing",
+    "source_url": "https://n26.com/en-de/plans",
+    "source_tier": "Tier 1",
+    "timestamp": "2026-08-16T05:00:00.000Z",
+    "change_summary": "N26 updated pricing: changed from [Instant Savings: 1.26% p.a.] to [Instant Savings: 3.00% p.a.].",
+    "why_it_matters": "Impacts deposit competition vs Trade Republic's 3.75% p.a. on uninvested cash up to 50,000 EUR.",
+    "diff_snippet": "===================================================================\n--- a/n26_pricing.md\tprior_snapshot\n+++ b/n26_pricing.md\tcurrent_snapshot\n@@ -3,5 +3,5 @@\n 0.00 € / month\n Instant Savings: 1.26% p.a.\n ## N26 Metal\n 16.90 € / month\n-Instant Savings: 1.26% p.a.\n\\ No newline at end of file\n+Instant Savings: 3.00% p.a.\n\\ No newline at end of file\n",
+    "requires_review": false,
+    "jtbd_pillar": "Value Realization",
+    "impact_scoring": {
+      "classification": "Differentiator (Moat)",
+      "urgency": "P1 - Next Sprint",
+      "rationale": "Trade Republic retains a clear +75 bps uninvested cash yield advantage (3.75% vs 3.00%). Strong marketing contrast opportunity."
+    },
+    "mini_prd": {
+      "problem_statement": "N26's pricing update (N26 updated pricing: changed from [Instant Savings: 1.26% p.a.] to [Instant Savings: 3.00% p.a.].) poses an Differentiator (Moat) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Launch tactical acquisition campaign contrasting Trade Republic's friction-free product advantage against N26's recent changes.",
+      "target_metrics": [
+        "+20% signup conversion on comparison landing pages",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to N26 PRICING",
+      "user_story": "As a Trade Republic customer evaluating N26, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "auto_published"
+  },
+  {
+    "id": "sig_revolut_ultra_1786938650522",
+    "competitor": "Revolut",
+    "category": "product_launch",
+    "source_url": "https://www.revolut.com/en-DE/our-pricing-plans/",
+    "source_tier": "Tier 1",
+    "timestamp": "2026-08-15T05:00:00.000Z",
+    "change_summary": "Revolut updated product_launch: changed from [Metal - 13.99 €/month] to [Metal - 13.99 €/month; Ultra - 45.00 €/month - Platinum-plated card, unlimited airport lounge access].",
+    "why_it_matters": "Targets premium account tiers; contrast with Trade Republic's free card with 1% saveback on card spending directly invested into savings plan (max 15 EUR/mo).",
+    "diff_snippet": "===================================================================\n--- a/revolut_ultra.md\tprior_snapshot\n+++ b/revolut_ultra.md\tcurrent_snapshot\n@@ -1,4 +1,5 @@\n Standard - 0 €/month\n Plus - 2.99 €/month\n Premium - 7.99 €/month\n-Metal - 13.99 €/month\n\\ No newline at end of file\n+Metal - 13.99 €/month\n+Ultra - 45.00 €/month - Platinum-plated card, unlimited airport lounge access\n\\ No newline at end of file\n",
+    "requires_review": true,
+    "escalation_reason": "Non-pricing category (product_launch) requires PM validation.",
+    "jtbd_pillar": "Feature Bloat",
+    "impact_scoring": {
+      "classification": "Noise (Low ROI)",
+      "urgency": "P3 - Ignore",
+      "rationale": "High-overhead luxury/status tier with negligible retail volume impact. Low ROI for Trade Republic to replicate."
+    },
+    "mini_prd": {
+      "problem_statement": "Revolut's product_launch update (Revolut updated product_launch: changed from [Metal - 13.99 €/month] to [Metal - 13.99 €/month; Ultra - 45.00 €/month - Platinum-plated card, unlimited airport lounge access].) poses an Noise (Low ROI) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Document as competitive noise. No product engineering response required; preserve squad focus on core roadmap.",
+      "target_metrics": [
+        "+20% signup conversion on comparison landing pages",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to Revolut PRODUCT LAUNCH",
+      "user_story": "As a Trade Republic customer evaluating Revolut, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "approved"
+  },
+  {
+    "id": "sig_scalable_interest_1786938650524",
+    "competitor": "Scalable Capital",
+    "category": "pricing",
+    "source_url": "https://de.scalable.capital/en/pricing",
+    "source_tier": "Tier 1",
+    "timestamp": "2026-08-14T05:00:00.000Z",
+    "change_summary": "Scalable Capital updated pricing: changed from [4.00% p.a. interest on cash up to 1,000,000 € with Baader Bank] to [3.75% p.a. interest on cash up to 1,000,000 € with Baader Bank].",
+    "why_it_matters": "Impacts deposit competition vs Trade Republic's 3.75% p.a. on uninvested cash up to 50,000 EUR.",
+    "diff_snippet": "===================================================================\n--- a/scalable_interest.md\tprior_snapshot\n+++ b/scalable_interest.md\tcurrent_snapshot\n@@ -1,4 +1,4 @@\n ## Scalable Broker Plans\n ### PRIME+\n 4.99 € / month\n-4.00% p.a. interest on cash up to 1,000,000 € with Baader Bank\n\\ No newline at end of file\n+3.75% p.a. interest on cash up to 1,000,000 € with Baader Bank\n\\ No newline at end of file\n",
+    "requires_review": false,
+    "jtbd_pillar": "Value Realization",
+    "impact_scoring": {
+      "classification": "Defensive Need (Parity)",
+      "urgency": "P1 - Next Sprint",
+      "rationale": "Competitor achieved exact cash rate parity (3.75%). Requires retention messaging defense for high-balance brokerage accounts."
+    },
+    "mini_prd": {
+      "problem_statement": "Scalable Capital's pricing update (Scalable Capital updated pricing: changed from [4.00% p.a. interest on cash up to 1,000,000 € with Baader Bank] to [3.75% p.a. interest on cash up to 1,000,000 € with Baader Bank].) poses an Defensive Need (Parity) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Deploy targeted retention cohort trigger: Alert users with >€5,000 cash balance of their compounded 3.75% yield and 1% Saveback rewards.",
+      "target_metrics": [
+        "-15% 30-day net outflow of high-balance accounts",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to Scalable Capital PRICING",
+      "user_story": "As a Trade Republic customer evaluating Scalable Capital, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "auto_published"
+  },
+  {
+    "id": "sig_bitpanda_staking_1786938650526",
+    "competitor": "Bitpanda",
+    "category": "pricing",
+    "source_url": "https://www.bitpanda.com/en/limits-and-fees",
+    "source_tier": "Tier 1",
+    "timestamp": "2026-08-12T05:00:00.000Z",
+    "change_summary": "Bitpanda updated pricing: changed from [| Ethereum (ETH) | 3.8% APY |; | Solana (SOL) | 6.5% APY |] to [| Ethereum (ETH) | 3.1% APY |; | Solana (SOL) | 5.8% APY |].",
+    "why_it_matters": "Signals a strategic shift in Bitpanda's positioning relative to Trade Republic.",
+    "diff_snippet": "===================================================================\n--- a/bitpanda_staking.md\tprior_snapshot\n+++ b/bitpanda_staking.md\tcurrent_snapshot\n@@ -1,3 +1,3 @@\n ## Bitpanda Staking Yields\n-| Ethereum (ETH) | 3.8% APY |\n-| Solana (SOL) | 6.5% APY |\n\\ No newline at end of file\n+| Ethereum (ETH) | 3.1% APY |\n+| Solana (SOL) | 5.8% APY |\n\\ No newline at end of file\n",
+    "requires_review": false,
+    "jtbd_pillar": "Value Realization",
+    "impact_scoring": {
+      "classification": "Differentiator (Moat)",
+      "urgency": "P2 - Monitor Only",
+      "rationale": "Steady-state competitive shift; Trade Republic maintains core fee and saveback leadership."
+    },
+    "mini_prd": {
+      "problem_statement": "Bitpanda's pricing update (Bitpanda updated pricing: changed from [| Ethereum (ETH) | 3.8% APY |; | Solana (SOL) | 6.5% APY |] to [| Ethereum (ETH) | 3.1% APY |; | Solana (SOL) | 5.8% APY |].) poses an Differentiator (Moat) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Launch tactical acquisition campaign contrasting Trade Republic's friction-free product advantage against Bitpanda's recent changes.",
+      "target_metrics": [
+        "+20% signup conversion on comparison landing pages",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to Bitpanda PRICING",
+      "user_story": "As a Trade Republic customer evaluating Bitpanda, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "auto_published"
+  },
+  {
+    "id": "sig_revolut_referrals_1786938650527",
+    "competitor": "Revolut",
+    "category": "marketing_promo",
+    "source_url": "https://www.revolut.com/en-DE/referral-program/",
+    "source_tier": "Tier 1",
+    "timestamp": "2026-08-15T17:00:00.000Z",
+    "change_summary": "Revolut updated marketing_promo: changed from [Get 40 € for every friend who signs up and orders a card.] to [Summer Referral Boost: Get 60 € for every friend who signs up, orders a physical card, and completes 3 purchases of at least 5 € within 21 days.].",
+    "why_it_matters": "Targets premium account tiers; contrast with Trade Republic's free card with 1% saveback on card spending directly invested into savings plan (max 15 EUR/mo).",
+    "diff_snippet": "===================================================================\n--- a/revolut_referrals.md\tprior_snapshot\n+++ b/revolut_referrals.md\tcurrent_snapshot\n@@ -1,2 +1,2 @@\n ## Invite Friends\n-Get 40 € for every friend who signs up and orders a card.\n\\ No newline at end of file\n+Summer Referral Boost: Get 60 € for every friend who signs up, orders a physical card, and completes 3 purchases of at least 5 € within 21 days.\n\\ No newline at end of file\n",
+    "requires_review": false,
+    "jtbd_pillar": "Conversion / Monetization Hooks",
+    "impact_scoring": {
+      "classification": "Defensive Need (Parity)",
+      "urgency": "P1 - Next Sprint",
+      "rationale": "Competitor referral bounty doubled, applying CAC inflation. Requires monitoring acquisition conversion funnels."
+    },
+    "mini_prd": {
+      "problem_statement": "Revolut's marketing_promo update (Revolut updated marketing_promo: changed from [Get 40 € for every friend who signs up and orders a card.] to [Summer Referral Boost: Get 60 € for every friend who signs up, orders a physical card, and completes 3 purchases of at least 5 € within 21 days.].) poses an Defensive Need (Parity) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Deploy targeted retention cohort trigger: Alert users with >€5,000 cash balance of their compounded 3.75% yield and 1% Saveback rewards.",
+      "target_metrics": [
+        "-15% 30-day net outflow of high-balance accounts",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to Revolut MARKETING PROMO",
+      "user_story": "As a Trade Republic customer evaluating Revolut, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "auto_published"
+  },
+  {
+    "id": "sig_scalable_promos_1786938650528",
+    "competitor": "Scalable Capital",
+    "category": "marketing_promo",
+    "source_url": "https://de.scalable.capital/en/promotions",
+    "source_tier": "Tier 1",
+    "timestamp": "2026-08-13T17:00:00.000Z",
+    "change_summary": "Scalable Capital updated marketing_promo: changed from [## Scalable Broker; Start investing in 7,500+ stocks and ETFs.] to [## Portfolio Transfer Bonus; Transfer your existing portfolio to Scalable Capital and receive up to 100 € cash bonus directly into your account (valid for transfers over 10,000 €).].",
+    "why_it_matters": "Aggressive acquisition promotion impacting user acquisition velocity and CAC benchmarks against Trade Republic.",
+    "diff_snippet": "===================================================================\n--- a/scalable_promos.md\tprior_snapshot\n+++ b/scalable_promos.md\tcurrent_snapshot\n@@ -1,2 +1,2 @@\n-## Scalable Broker\n-Start investing in 7,500+ stocks and ETFs.\n\\ No newline at end of file\n+## Portfolio Transfer Bonus\n+Transfer your existing portfolio to Scalable Capital and receive up to 100 € cash bonus directly into your account (valid for transfers over 10,000 €).\n\\ No newline at end of file\n",
+    "requires_review": false,
+    "jtbd_pillar": "Conversion / Monetization Hooks",
+    "impact_scoring": {
+      "classification": "Differentiator (Moat)",
+      "urgency": "P2 - Monitor Only",
+      "rationale": "Steady-state competitive shift; Trade Republic maintains core fee and saveback leadership."
+    },
+    "mini_prd": {
+      "problem_statement": "Scalable Capital's marketing_promo update (Scalable Capital updated marketing_promo: changed from [## Scalable Broker; Start investing in 7,500+ stocks and ETFs.] to [## Portfolio Transfer Bonus; Transfer your existing portfolio to Scalable Capital and receive up to 100 € cash bonus directly into your account (valid for transfers over 10,000 €).].) poses an Differentiator (Moat) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Launch tactical acquisition campaign contrasting Trade Republic's friction-free product advantage against Scalable Capital's recent changes.",
+      "target_metrics": [
+        "+20% signup conversion on comparison landing pages",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to Scalable Capital MARKETING PROMO",
+      "user_story": "As a Trade Republic customer evaluating Scalable Capital, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "auto_published"
+  },
+  {
+    "id": "sig_n26_app_reviews_1786938650529",
+    "competitor": "N26",
+    "category": "app_reviews",
+    "source_url": "https://play.google.com/store/apps/details?id=de.number26.android",
+    "ios_url": "https://apps.apple.com/de/app/n26-the-mobile-bank/id956857260",
+    "android_url": "https://play.google.com/store/apps/details?id=de.number26.android",
+    "source_tier": "Tier 2",
+    "timestamp": "2026-08-13T05:00:00.000Z",
+    "change_summary": "N26 updated app_reviews: changed from [iOS: 4.7 ★ (85k) | Google Play: 4.5 ★ (120k)Users praise smooth daily banking and instant push notifications.] to [iOS: 4.3 ★ (92k) | Google Play: 4.1 ★ (128k)Sentiment shift across App Store & Google Play: Surge in 1★-2★ reviews reporting KYC verification loops and biometric login failures following update v12.4. Customer support wait times cited as primary complaint.].",
+    "why_it_matters": "Indicates user sentiment & customer experience shift; highlights product reliability vs Trade Republic app experience.",
+    "diff_snippet": "===================================================================\n--- a/n26_app_reviews.md\tprior_snapshot\n+++ b/n26_app_reviews.md\tcurrent_snapshot\n@@ -1,1 +1,1 @@\n-iOS: 4.7 ★ (85k) | Google Play: 4.5 ★ (120k)Users praise smooth daily banking and instant push notifications.\n\\ No newline at end of file\n+iOS: 4.3 ★ (92k) | Google Play: 4.1 ★ (128k)Sentiment shift across App Store & Google Play: Surge in 1★-2★ reviews reporting KYC verification loops and biometric login failures following update v12.4. Customer support wait times cited as primary complaint.\n\\ No newline at end of file\n",
+    "requires_review": true,
+    "escalation_reason": "Source tier (Tier 2) mandates review queue routing.",
+    "rating_delta": "Rating: 4.3★",
+    "sentiment_theme": "Customer Support Friction",
+    "jtbd_pillar": "Onboarding Friction",
+    "impact_scoring": {
+      "classification": "Differentiator (Moat)",
+      "urgency": "P0 - Immediate Response",
+      "rationale": "Competitor onboarding KYC failure loop. Prime window to run acquisition campaigns highlighting TR 3-minute frictionless signup."
+    },
+    "mini_prd": {
+      "problem_statement": "N26's app_reviews update (N26 updated app_reviews: changed from [iOS: 4.7 ★ (85k) | Google Play: 4.5 ★ (120k)Users praise smooth daily banking and instant push notifications.] to [iOS: 4.3 ★ (92k) | Google Play: 4.1 ★ (128k)Sentiment shift across App Store & Google Play: Surge in 1★-2★ reviews reporting KYC verification loops and biometric login failures following update v12.4. Customer support wait times cited as primary complaint.].) poses an Differentiator (Moat) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Launch tactical acquisition campaign contrasting Trade Republic's friction-free product advantage against N26's recent changes.",
+      "target_metrics": [
+        "+20% signup conversion on comparison landing pages",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to N26 APP REVIEWS",
+      "user_story": "As a Trade Republic customer evaluating N26, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "approved"
+  },
+  {
+    "id": "sig_bitpanda_app_reviews_1786938650530",
+    "competitor": "Bitpanda",
+    "category": "app_reviews",
+    "source_url": "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
+    "ios_url": "https://apps.apple.com/de/app/bitpanda-buy-bitcoin-crypto/id1399049449",
+    "android_url": "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
+    "source_tier": "Tier 2",
+    "timestamp": "2026-08-11T05:00:00.000Z",
+    "change_summary": "Bitpanda updated app_reviews: changed from [iOS: 4.5 ★ (40k) | Google Play: 4.4 ★ (60k)Frequent complaints regarding bank deposit clearance speed.] to [iOS: 4.6 ★ (43k) | Google Play: 4.5 ★ (65k)Positive sentiment shift across App Store & Google Play: High praise for 0% PayPal instant deposits and streamlined crypto staking UI. Deposit speed complaints down 35% week-over-week.].",
+    "why_it_matters": "Directly compares to Trade Republic's 1.00 EUR flat fee per order, 50+ tradable cryptocurrencies trading structure.",
+    "diff_snippet": "===================================================================\n--- a/bitpanda_app_reviews.md\tprior_snapshot\n+++ b/bitpanda_app_reviews.md\tcurrent_snapshot\n@@ -1,1 +1,1 @@\n-iOS: 4.5 ★ (40k) | Google Play: 4.4 ★ (60k)Frequent complaints regarding bank deposit clearance speed.\n\\ No newline at end of file\n+iOS: 4.6 ★ (43k) | Google Play: 4.5 ★ (65k)Positive sentiment shift across App Store & Google Play: High praise for 0% PayPal instant deposits and streamlined crypto staking UI. Deposit speed complaints down 35% week-over-week.\n\\ No newline at end of file\n",
+    "requires_review": true,
+    "escalation_reason": "Source tier (Tier 2) mandates review queue routing.",
+    "rating_delta": "Rating: 4.6★",
+    "jtbd_pillar": "Onboarding Friction",
+    "impact_scoring": {
+      "classification": "Differentiator (Moat)",
+      "urgency": "P2 - Monitor Only",
+      "rationale": "Steady-state competitive shift; Trade Republic maintains core fee and saveback leadership."
+    },
+    "mini_prd": {
+      "problem_statement": "Bitpanda's app_reviews update (Bitpanda updated app_reviews: changed from [iOS: 4.5 ★ (40k) | Google Play: 4.4 ★ (60k)Frequent complaints regarding bank deposit clearance speed.] to [iOS: 4.6 ★ (43k) | Google Play: 4.5 ★ (65k)Positive sentiment shift across App Store & Google Play: High praise for 0% PayPal instant deposits and streamlined crypto staking UI. Deposit speed complaints down 35% week-over-week.].) poses an Differentiator (Moat) dynamic for Trade Republic's active customer base.",
+      "proposed_mvp_response": "Launch tactical acquisition campaign contrasting Trade Republic's friction-free product advantage against Bitpanda's recent changes.",
+      "target_metrics": [
+        "+20% signup conversion on comparison landing pages",
+        "<0.5% annualized churn on deposit accounts",
+        "Net Promoter Score (NPS) >= 65"
+      ],
+      "explicit_out_of_scope": [
+        "Do NOT subsidize unsustainable promotional CAC spikes or match temporary referral bounties",
+        "Do NOT introduce complex tiered loyalty points that degrade fee transparency",
+        "Do NOT alter core €1.00 execution fee structure without Pricing Committee sign-off"
+      ]
+    },
+    "jira_gherkin_story": {
+      "epic_title": "[COMP-INTEL] Strategic Response to Bitpanda APP REVIEWS",
+      "user_story": "As a Trade Republic customer evaluating Bitpanda, I want clear visibility into Trade Republic's superior value proposition, so that I keep my primary wealth and cash balances at Trade Republic.",
+      "gherkin_scenarios": [
+        "Scenario: User views comparative product advantages\n  Given a user has an active uninvested cash balance > 0 EUR\n  When they view the cash interest or account overview in the app\n  Then they should see their compounded 3.75% p.a. monthly payout and accrued 1% Saveback total clearly displayed",
+        "Scenario: New user lands from competitive comparison channel\n  Given an unregistered user arrives via competitive comparison campaign\n  When they initiate registration\n  Then onboarding completes via biometric KYC in under 3 minutes without authentication loops"
+      ],
+      "acceptance_criteria": [
+        "Tracking events emitted for competitive retention banner impressions and CTA clicks",
+        "All comparison messaging strictly reflects verified terms without regulatory overclaim",
+        "No latency regression added to account overview render time (<200ms at p95)"
+      ]
+    },
+    "status": "approved"
+  }
+]

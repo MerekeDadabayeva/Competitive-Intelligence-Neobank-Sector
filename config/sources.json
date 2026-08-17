@@ -1,0 +1,171 @@
+{
+  "settings": {
+    "user_agent": "FintechPM-CompetitiveBot/1.0 (+https://internal-pm-tools.local; contact: pm-monitoring@internal.corp)",
+    "default_rate_limit_ms": 3000,
+    "max_retries": 2,
+    "timeout_ms": 15000,
+    "slack_webhook_url_env": "SLACK_WEBHOOK_URL"
+  },
+  "sources": [
+    {
+      "id": "n26_pricing",
+      "competitor": "N26",
+      "category": "pricing",
+      "tier": "Tier 1",
+      "url": "https://n26.com/en-de/plans",
+      "frequency": "daily",
+      "selector": "main, [data-testid='pricing-table'], .plans-table, #plans-comparison",
+      "anchor_terms": ["fee", "plan", "standard", "smart", "you", "metal", "interest", "month", "€", "%"],
+      "min_character_count": 500,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "n26_blog",
+      "competitor": "N26",
+      "category": "product_launch",
+      "tier": "Tier 1",
+      "url": "https://n26.com/en-de/blog",
+      "frequency": "weekly",
+      "selector": "main, article, .blog-posts, [data-testid='blog-list']",
+      "anchor_terms": ["n26", "feature", "product", "update", "banking", "account"],
+      "min_character_count": 600,
+      "requires_review_by_default": true
+    },
+    {
+      "id": "revolut_pricing",
+      "competitor": "Revolut",
+      "category": "pricing",
+      "tier": "Tier 1",
+      "url": "https://www.revolut.com/en-DE/our-pricing-plans/",
+      "frequency": "daily",
+      "selector": "main, [data-testid='pricing-table'], #pricing, .pricing-grid",
+      "anchor_terms": ["standard", "plus", "premium", "metal", "ultra", "fee", "month", "€", "fx", "crypto"],
+      "min_character_count": 800,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "revolut_fees_legal",
+      "competitor": "Revolut",
+      "category": "pricing",
+      "tier": "Tier 1",
+      "url": "https://www.revolut.com/en-DE/legal/standard-fees/",
+      "frequency": "daily",
+      "selector": "main, .legal-document, #legal-content, article",
+      "anchor_terms": ["fee", "exchange", "limit", "atm", "card", "standard", "markup", "%", "€"],
+      "min_character_count": 1000,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "revolut_news",
+      "competitor": "Revolut",
+      "category": "product_launch",
+      "tier": "Tier 1",
+      "url": "https://www.revolut.com/en-DE/newsroom/",
+      "frequency": "weekly",
+      "selector": "main, .news-grid, [data-testid='newsroom-feed']",
+      "anchor_terms": ["revolut", "launch", "feature", "new", "press", "announcement"],
+      "min_character_count": 500,
+      "requires_review_by_default": true
+    },
+    {
+      "id": "scalable_pricing",
+      "competitor": "Scalable Capital",
+      "category": "pricing",
+      "tier": "Tier 1",
+      "url": "https://de.scalable.capital/en/pricing",
+      "frequency": "daily",
+      "selector": "main, #pricing, .pricing-comparison, .table-pricing",
+      "anchor_terms": ["free", "prime", "prime+", "broker", "interest", "order", "etf", "fee", "€", "%"],
+      "min_character_count": 600,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "scalable_news",
+      "competitor": "Scalable Capital",
+      "category": "product_launch",
+      "tier": "Tier 1",
+      "url": "https://de.scalable.capital/en/news",
+      "frequency": "weekly",
+      "selector": "main, .news-overview, article",
+      "anchor_terms": ["scalable", "broker", "launch", "update", "interest", "etf", "investing"],
+      "min_character_count": 500,
+      "requires_review_by_default": true
+    },
+    {
+      "id": "bitpanda_limits_fees",
+      "competitor": "Bitpanda",
+      "category": "pricing",
+      "tier": "Tier 1",
+      "url": "https://www.bitpanda.com/en/limits-and-fees",
+      "frequency": "daily",
+      "selector": "main, #fees, .fee-tables, [data-testid='fee-table']",
+      "anchor_terms": ["fee", "deposit", "withdrawal", "spread", "crypto", "trading", "maker", "taker", "%", "€"],
+      "min_character_count": 700,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "bitpanda_blog",
+      "competitor": "Bitpanda",
+      "category": "product_launch",
+      "tier": "Tier 1",
+      "url": "https://blog.bitpanda.com/en",
+      "frequency": "weekly",
+      "selector": "main, .post-feed, article",
+      "anchor_terms": ["bitpanda", "crypto", "spotlight", "launch", "staking", "investing"],
+      "min_character_count": 500,
+      "requires_review_by_default": true
+    },
+    {
+      "id": "revolut_referrals",
+      "competitor": "Revolut",
+      "category": "marketing_promo",
+      "tier": "Tier 1",
+      "url": "https://www.revolut.com/en-DE/referral-program/",
+      "frequency": "weekly",
+      "selector": "main, .hero, .referral-terms, #referrals",
+      "anchor_terms": ["referral", "invite", "reward", "bonus", "€", "friend"],
+      "min_character_count": 400,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "scalable_promos",
+      "competitor": "Scalable Capital",
+      "category": "marketing_promo",
+      "tier": "Tier 1",
+      "url": "https://de.scalable.capital/en/promotions",
+      "frequency": "weekly",
+      "selector": "main, .promotion-card, .hero-banner",
+      "anchor_terms": ["bonus", "promotion", "deposit", "signup", "prime+", "€"],
+      "min_character_count": 400,
+      "requires_review_by_default": false
+    },
+    {
+      "id": "n26_app_reviews",
+      "competitor": "N26",
+      "category": "app_reviews",
+      "tier": "Tier 2",
+      "url": "https://play.google.com/store/apps/details?id=de.number26.android",
+      "ios_url": "https://apps.apple.com/de/app/n26-the-mobile-bank/id956857260",
+      "android_url": "https://play.google.com/store/apps/details?id=de.number26.android",
+      "frequency": "weekly",
+      "selector": ".reviews-content, .customer-reviews, [data-testid='reviews']",
+      "anchor_terms": ["rating", "stars", "review", "update", "banking", "app"],
+      "min_character_count": 300,
+      "requires_review_by_default": true
+    },
+    {
+      "id": "bitpanda_app_reviews",
+      "competitor": "Bitpanda",
+      "category": "app_reviews",
+      "tier": "Tier 2",
+      "url": "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
+      "ios_url": "https://apps.apple.com/de/app/bitpanda-buy-bitcoin-crypto/id1399049449",
+      "android_url": "https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda",
+      "frequency": "weekly",
+      "selector": ".reviews-content, .customer-reviews",
+      "anchor_terms": ["rating", "crypto", "trading", "app", "support", "deposit"],
+      "min_character_count": 300,
+      "requires_review_by_default": true
+    }
+  ]
+}

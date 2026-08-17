@@ -1,0 +1,62 @@
+{
+  "held_01_dl_basis_point_fee": {
+    "id": "held_01_dl_basis_point_fee",
+    "competitor": "Revolut",
+    "expected_change": true,
+    "description": "Crypto spread fee change inside a <dl> definition list (0.50% -> 0.45%), the originally-specced PRD sensitivity case"
+  },
+  "held_02_text_fee_removal": {
+    "id": "held_02_text_fee_removal",
+    "competitor": "N26",
+    "expected_change": true,
+    "description": "ATM fee policy change from conditional free to unconditionally free (textual, not purely numeric)"
+  },
+  "held_03_new_table_row": {
+    "id": "held_03_new_table_row",
+    "competitor": "Scalable Capital",
+    "expected_change": true,
+    "description": "New asset class (Commodities) added as a row to the fee table"
+  },
+  "held_04_nested_react_divs": {
+    "id": "held_04_nested_react_divs",
+    "competitor": "Bitpanda",
+    "expected_change": true,
+    "description": "Cash Plus yield change buried inside deeply nested React-style component divs"
+  },
+  "held_05_tier_rename": {
+    "id": "held_05_tier_rename",
+    "competitor": "Revolut",
+    "expected_change": true,
+    "description": "Plan tier renamed from 'Premium' to 'Premium Pro' with adjusted pricing"
+  },
+  "held_06_noise_ab_test_variant": {
+    "id": "held_06_noise_ab_test_variant",
+    "competitor": "N26",
+    "expected_change": false,
+    "description": "A/B test data-variant attribute changed on plan cards; all visible content identical"
+  },
+  "held_07_noise_image_src_swap": {
+    "id": "held_07_noise_image_src_swap",
+    "competitor": "Revolut",
+    "expected_change": false,
+    "description": "Hero image and lazy-load src attributes changed; pricing content identical"
+  },
+  "held_08_noise_intercom_widget": {
+    "id": "held_08_noise_intercom_widget",
+    "competitor": "Scalable Capital",
+    "expected_change": false,
+    "description": "Intercom live chat widget injected into page; pricing content identical"
+  },
+  "held_09_noise_gtm_analytics": {
+    "id": "held_09_noise_gtm_analytics",
+    "competitor": "Bitpanda",
+    "expected_change": false,
+    "description": "GTM container ID and analytics snippet version changed; fee tables identical"
+  },
+  "held_10_noise_testimonial_rotation": {
+    "id": "held_10_noise_testimonial_rotation",
+    "competitor": "N26",
+    "expected_change": false,
+    "description": "Customer testimonial quote and author name rotated; pricing content identical"
+  }
+}

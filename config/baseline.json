@@ -1,0 +1,22 @@
+{
+  "company": "Trade Republic",
+  "role": "Internal Strategic Baseline",
+  "updated_at": "2024-04-01",
+  "core_offering": {
+    "cash_interest_rate": "3.75% p.a. on uninvested cash up to 50,000 EUR",
+    "trading_commission": "1.00 EUR flat fee per trade (stocks, ETFs, crypto)",
+    "savings_plans": "0.00 EUR (Free automated ETF and stock savings plans)",
+    "card_benefits": {
+      "saveback": "1% saveback on card spending directly invested into savings plan (max 15 EUR/mo)",
+      "round_up": "Spare change investment feature available",
+      "atm_withdrawals": "Free worldwide ATM withdrawals above 100 EUR"
+    },
+    "crypto": "1.00 EUR flat fee per order, 50+ tradable cryptocurrencies",
+    "fractional_shares": "Supported for all eligible stocks and ETFs"
+  },
+  "strategic_priorities": [
+    "Retaining cash deposits via industry-leading uninvested cash interest",
+    "Customer acquisition through 1% card saveback mechanism",
+    "Low friction, low-cost long-term wealth creation (free savings plans)"
+  ]
+}

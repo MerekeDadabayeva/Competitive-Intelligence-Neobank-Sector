@@ -1,0 +1,2 @@
+# Competitive Intelligence — Neobank Sector
+# Neobank Competitive Intelligence Engine (for Product Managers)  > **Autonomous Competitive Intelligence & Strategic Decision Engine**   > Built for Fintech PMs to monitor competitor pricing, product launches, marketing promos, and app store sentiment shifts in real time — with zero hallucinations, strict human-in-the-loop escalation, and 1-click sprint execution.
